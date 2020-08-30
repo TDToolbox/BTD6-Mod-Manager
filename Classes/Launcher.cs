@@ -21,7 +21,7 @@ namespace BTD6_Mod_Manager.Classes
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
 
-            int injectWaitTime = 11000;
+            int injectWaitTime = 15000;
             var btd6Info = GameInfo.GetGame(GameType.BTD6);
 
             if (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6Info.ProcName, out Process proc))

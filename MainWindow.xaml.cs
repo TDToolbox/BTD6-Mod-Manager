@@ -1,6 +1,7 @@
 ﻿using BTD_Backend;
 using BTD_Backend.Game;
 using BTD_Backend.Persistence;
+using BTD_Backend.Web;
 using BTD6_Mod_Manager.Classes;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -65,8 +67,8 @@ namespace BTD6_Mod_Manager
 
         private void UserData_UserDataLoaded(object sender, UserData.UserDataEventArgs e)
         {
-            BTD6_CrashHandler handler = new BTD6_CrashHandler();
-            handler.EnableCrashLog();
+            /*BTD6_CrashHandler handler = new BTD6_CrashHandler();
+            handler.EnableCrashLog();*/
         }
 
         #region UI Events
@@ -81,15 +83,18 @@ namespace BTD6_Mod_Manager
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
 
-            /*UpdateHandler update = new UpdateHandler()
+            UpdateHandler update = new UpdateHandler()
             {
-                GitApiReleasesURL = "https://api.github.com/repos/TDToolbox/TD-Loader/releases",
-                ProjectExePath = Environment.CurrentDirectory + "\\TD Loader.exe",
+                GitApiReleasesURL = "https://api.github.com/repos/TDToolbox/BTD6-Mod-Manager/releases",
+                ProjectExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe",
                 InstallDirectory = Environment.CurrentDirectory,
-                ProjectName = "TD Loader",
-                UpdatedZipName = "TD.Loader.1.2.0.0.zip"
+                ProjectName = "BTD6 Mod Manager",
+                UpdatedZipName = "BTD6 Mod Manager.zip"
             };
-            BgThread.AddToQueue(() => update.HandleUpdates(false));*/
+
+            Thread updater = new Thread(() => update.HandleUpdates(false));
+            updater.IsBackground = true;
+            BgThread.AddToQueue(updater);
         }
 
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)

@@ -75,7 +75,13 @@ namespace BTD6_Mod_Manager.UserControls
             }
 
             if (TempList.Count != TempSettings.Instance.LastUsedMods.Count)
-                TempSettings.Instance.LastUsedMods = TempList;
+            {
+                TempSettings.Instance.LastUsedMods = new List<string>();
+                foreach (var item in TempList)
+                {
+                    TempSettings.Instance.LastUsedMods.Add(item);
+                }
+            }
 
             SelectedMods_ListBox.SelectedIndex = 0;
         }

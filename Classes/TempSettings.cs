@@ -59,7 +59,9 @@ namespace BTD6_Mod_Manager.Classes
                 return this;
             }
 
-            return JsonConvert.DeserializeObject<TempSettings>(json);
+            var abc = JsonConvert.DeserializeObject<TempSettings>(json);
+            SessionData.LoadedMods = abc.LastUsedMods;
+            return abc;
         }
 
         public void SaveSettings()
