@@ -169,7 +169,7 @@ namespace BTD6_Mod_Manager
         }
         private void Discord_Button_Click(object sender, RoutedEventArgs e)
         {
-            /*Process.Start("https://discord.gg/jj5Q7mA");*/
+            Process.Start("https://discord.gg/NnD6nRH");
         }
 
         private void OpenBTD6_ModDir_Button_Click(object sender, RoutedEventArgs e)
