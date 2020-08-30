@@ -1,0 +1,101 @@
+﻿<Window x:Class="BTD6_Mod_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:UserControls="clr-namespace:BTD6_Mod_Manager.UserControls"
+        xmlns:local="clr-namespace:BTD6_Mod_Manager"
+        mc:Ignorable="d"
+        Title="BTD6 Mod Manager" Height="650" Width="800" Loaded="Main_Loaded" Activated="Main_Activated" Closing="Main_Closing">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Resources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ToolBarPanel DockPanel.Dock="Top">
+            <ToolBar ToolBarTray.IsLocked="True" Background="#FF191919" Loaded="ToolBar_Loaded">
+                <xctk:DropDownButton x:Name="File_Button" Background="#FF191919" Content="File" Foreground="White" FontSize="18" DropDownContentBackground="Black">
+                    <xctk:DropDownButton.DropDownContent>
+                        <Menu>
+                            <Menu.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </Menu.ItemsPanel>
+
+                            <MenuItem x:Name="Settings_Button" Header="Settings" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="Settings_Button_Click"/>
+                            <MenuItem x:Name="OpenSettingsDir_Button" Header="Open Settings Dir" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenSettingsDir_Button_Click"/>
+                        </Menu>
+                    </xctk:DropDownButton.DropDownContent>
+                </xctk:DropDownButton>
+
+                <xctk:DropDownButton x:Name="Open_Button" Background="#FF191919" Content="Open" Foreground="White" FontSize="18" DropDownContentBackground="Black">
+                    <xctk:DropDownButton.DropDownContent>
+                        <Menu>
+                            <Menu.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </Menu.ItemsPanel>
+
+                            <MenuItem x:Name="OpenBTD6_ModDir_Button" Header="BTD6 Mods Directory" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenBTD6_ModDir_Button_Click"/>
+                        </Menu>
+                    </xctk:DropDownButton.DropDownContent>
+                </xctk:DropDownButton>
+
+                <xctk:DropDownButton x:Name="Testing_Button" Background="#FF191919" Content="Testing" Foreground="White" FontSize="18" DropDownContentBackground="Black">
+                    <xctk:DropDownButton.DropDownContent>
+                        <Menu>
+                            <Menu.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </Menu.ItemsPanel>
+
+                            <MenuItem x:Name="Test_Button1" Header="Test Button 1" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="Test_Button1_Click"/>
+                        </Menu>
+                    </xctk:DropDownButton.DropDownContent>
+                </xctk:DropDownButton>
+
+                <Separator Margin="8,0,8,0"/>
+                <Button x:Name="Discord_Button" Background="#FF69B2FB" Width="100" Height="30" BorderBrush="Black" FontSize="16" Click="Discord_Button_Click" VerticalAlignment="Bottom">
+                    <DockPanel>
+                        <TextBlock Text=" Discord " Foreground="White"/>
+                        <Image Source="Resources/discord logo.png" Margin="2"/>
+                    </DockPanel>
+                </Button>
+
+                <Separator Margin="8,0,8,0"/>
+                <Button x:Name="Launch_Button" Content="Launch" Background="#FF5BC900" Width="100" Height="30" BorderBrush="Black" FontSize="16" Click="Launch_Button_Click" Foreground="White"/>
+            </ToolBar>
+        </ToolBarPanel>
+
+        <Grid Grid.Row="1">
+            <UserControls:Mods_UserControl/>
+        </Grid>
+        
+        <Grid Grid.Row="2" >
+            <Grid Background="{StaticResource BrushBackgroundL}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button x:Name="CollapseConsole_Button" Grid.Row="0" Content="Show Console" Click="ConsoleColapsed"/>
+                <RichTextBox x:Name="OutputLog" Grid.Row="1" Visibility="Collapsed" Background="#FF272727" Foreground="White" FontSize="16" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" BorderThickness="0.5,0.5,0,0" IsReadOnly="True" MinHeight="100"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

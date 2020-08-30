@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="BTD6_Mod_Manager.ModItem_UserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BTD6_Mod_Manager"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+             d:DesignHeight="27" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Resources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    
+    <Grid MaxHeight="27" Width="auto" Background="#FF363636">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+
+        <CheckBox x:Name="Enable_CheckBox" IsChecked="False" Style="{StaticResource ToggleButton}" Grid.Column="1" MinWidth="120" MinHeight="20" Click="CheckBox_Clicked"/>
+
+        <Canvas Background="#FF424242" Grid.Column="3">
+            
+        </Canvas>
+        <Viewbox Grid.Column="3"  MinWidth="120" MinHeight="20" HorizontalAlignment="Left" Margin="0,0">
+            <TextBlock x:Name="ModName" Margin="20,0" Foreground="White"></TextBlock>
+        </Viewbox>
+
+        <xctk:DropDownButton x:Name="More_Button" Grid.Column="5" Background="#FF00B7E0" Content="More" Foreground="White" FontSize="18">
+            <xctk:DropDownButton.DropDownContent>
+                <Menu>
+                    <Menu.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </Menu.ItemsPanel>
+                    
+                    
+                    <MenuItem x:Name="RenameMod_Button" Header="Rename" FontSize="16" BorderThickness="0" Click="RenameMod_Button_Click"/>
+                    <MenuItem x:Name="DeleteMod_Button" Header="Delete" FontSize="16" BorderThickness="0" Click="DeleteMod_Button_Click"/>
+                    <MenuItem x:Name="OpenDevMgr_Button" Header="Open Dev Manager" FontSize="16" BorderThickness="0" Click="OpenDevMgr_Button_Click"/>
+                    <MenuItem x:Name="OpenMod_Button" Header="Open Mod Directory" FontSize="16" BorderThickness="0" Click="OpenMod_Button_Click"/>
+                    <MenuItem x:Name="CopyToClipboard_Button" Header="Copy to Clipboard" FontSize="16" BorderThickness="0" Click="CopyToClipboard_Button_Click"/>
+                    
+                    <!--<MenuItem x:Name="Settings_Button" Header="Settings" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="Settings_Button_Click"/>
+                    <MenuItem x:Name="OpenSettingsDir_Button" Header="Open Settings Dir" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenSettingsDir_Button_Click"/>-->
+                </Menu>
+            </xctk:DropDownButton.DropDownContent>
+        </xctk:DropDownButton>
+        
+        <!-- Idk what this plans to have so idk what to theme it to... -->
+        <!--<xctk:SplitButton Grid.Column="5" FontSize="17" Content="  More  " Background="#FF00B7E0" Foreground="White" Click="SplitButton_Click">
+            <xctk:SplitButton.DropDownContent>
+                <xctk:ButtonChrome MouseDown="ButtonChrome_MouseDown"></xctk:ButtonChrome>
+            </xctk:SplitButton.DropDownContent>
+        </xctk:SplitButton>-->
+        
+        
+    </Grid>
+</UserControl>

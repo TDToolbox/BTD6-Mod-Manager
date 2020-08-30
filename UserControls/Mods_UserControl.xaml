@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="BTD6_Mod_Manager.UserControls.Mods_UserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BTD6_Mod_Manager.UserControls"
+             mc:Ignorable="d" x:Name="ModsUC"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/../Resources/Resources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid x:Name="ModsUserControl" Background="#FF323232" SizeChanged="ModsUserControl_SizeChanged" Loaded="ModsUserControl_Loaded">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*" MaxHeight="300"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+
+
+        <Canvas Grid.Row="1" Grid.Column="1" Background="{StaticResource BrushOrangeMid}" MaxHeight="50"/>
+        <Button x:Name="AddMods_Button" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Margin="20,0" MinWidth="230" MaxHeight="43" Style="{StaticResource BlueButton}" Click="AddMods_Button_Click">Add Mods</Button>
+
+
+        <Viewbox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Margin="35,0">
+            <TextBlock x:Name="Mods_TextBlock" Text="BTD6 Mods" Style="{StaticResource VBTexbox}"/>
+        </Viewbox>
+
+        <Canvas x:Name="SelectedMods_Canvas" Grid.Row="3" Grid.Column="1" MaxHeight="50"/>
+        <Viewbox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0">
+            <TextBlock Text="Selected Mods" Style="{StaticResource VBTexbox}"/>
+
+        </Viewbox>
+
+        <ListBox x:Name="Mods_ListBox" Grid.Row="2" Grid.Column="1" ScrollViewer.VerticalScrollBarVisibility="Auto" Background="#FF363636"/>
+
+        <Grid x:Name="SelectedMods" Grid.Row="4" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <ListBox x:Name="SelectedMods_ListBox" Grid.Row="0" Grid.Column="0" ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                     Background="{StaticResource BrushBackground}" Foreground="{StaticResource BrushFont}"/>
+        </Grid>
+    </Grid>
+</UserControl>
