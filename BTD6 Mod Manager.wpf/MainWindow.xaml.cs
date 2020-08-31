@@ -67,6 +67,7 @@ namespace BTD6_Mod_Manager
             
             if (split.Length - 1 > 2)
                 version = version.Remove(version.Length - 2, 2);
+
             Version_TextBlock.Text = "Version " + version;
         }
 
@@ -88,9 +89,12 @@ namespace BTD6_Mod_Manager
 
             BgThread.AddToQueue(() =>
             {
+                string btd6ExePath = SteamUtils.GetGameDir(GameType.BTD6) + "\\" + GameInfo.GetGame(GameType.BTD6).EXEName;
+                FileInfo btd6File = new FileInfo(btd6ExePath);
+
                 while (true)
                 {
-                    if (BTD_Backend.Natives.Windows.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process proc))
+                    if (BTD_Backend.Natives.Windows.IsProgramRunning(btd6File, out Process proc))
                     {
                         Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
                         {

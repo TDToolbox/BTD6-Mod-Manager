@@ -3,6 +3,8 @@ using BTD_Backend.Game;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Windows;
+using System.Windows.Media.Media3D;
 
 namespace BTD6_Mod_Manager.Classes
 {
@@ -24,12 +26,15 @@ namespace BTD6_Mod_Manager.Classes
             int injectWaitTime = 15000;
             var btd6Info = GameInfo.GetGame(GameType.BTD6);
 
-            if (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6Info.ProcName, out Process proc))
+            string btd6ExePath = SteamUtils.GetGameDir(GameType.BTD6) + "\\" + GameInfo.GetGame(GameType.BTD6).EXEName;
+            FileInfo btd6File = new FileInfo(btd6ExePath);
+
+            if (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6File, out Process proc))
                 Process.Start("steam://rungameid/" + btd6Info.SteamID);
             else
                 injectWaitTime = 0;
 
-            while (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6Info.ProcName, out proc))
+            while (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6File, out proc))
                 Thread.Sleep(1000);
 
             if (SessionData.LoadedMods == null)
