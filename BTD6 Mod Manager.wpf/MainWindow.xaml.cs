@@ -45,6 +45,7 @@ namespace BTD6_Mod_Manager
             {
                 MessageBox.Show("You do not have the x64 Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 installed. Clicking OK will bring you to the direct download link. Mods will not work without it.", "Error!");
                 Process.Start("https://aka.ms/vs/16/release/vc_redist.x64.exe");
+                Environment.Exit(0);
             }
 
             SessionData.CurrentGame = GameType.BTD6;
@@ -100,10 +101,11 @@ namespace BTD6_Mod_Manager
                 ProjectExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe",
                 InstallDirectory = Environment.CurrentDirectory,
                 ProjectName = "BTD6 Mod Manager",
-                UpdatedZipName = "BTD6_Mod_Manager.zip"
+                UpdatedZipName = "BTD6_Mod_Manager.zip",
+                UpdaterExeName = "BTD6 Mod Manager Updater.exe"
             };
 
-            Thread updater = new Thread(() => update.HandleUpdates(false));
+            Thread updater = new Thread(() => update.HandleUpdates());
             updater.IsBackground = true;
             BgThread.AddToQueue(updater);
         }
@@ -204,7 +206,7 @@ namespace BTD6_Mod_Manager
 
         private void Log_MessageLogged(object sender, Log.LogEvents e)
         {
-            if (e.UseMsgBox)
+            if (e.Output == OutputType.MsgBox)
                 System.Windows.Forms.MessageBox.Show(e.Message);
             else
             {
@@ -213,6 +215,9 @@ namespace BTD6_Mod_Manager
                     OutputLog.AppendText(e.Message);
                     OutputLog.ScrollToEnd();
                 }));
+                
+                if (e.Output == OutputType.Both)
+                    System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ",""));
             }
 
             if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)

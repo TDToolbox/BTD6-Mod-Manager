@@ -13,8 +13,7 @@ namespace BTD6_Mod_Manager.Classes
         {
             if (MainWindow.doingWork)
             {
-                Log.Output("Cant do that! Doing something else.\nCurrent Process: " + errorMessage);
-                Log.Output("Cant do that! Doing something else.\nCurrent Process: " + errorMessage, true);
+                Log.Output("Cant do that! Doing something else.\nCurrent Process: " + errorMessage, OutputType.Both);
                 return true;
             }
             else
