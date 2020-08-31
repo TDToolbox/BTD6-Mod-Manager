@@ -32,6 +32,7 @@ namespace BTD6_Mod_Manager.Classes
 
         public string settingsFileName { get; set; } = "settings.json";
         public string MainSettingsDir { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
+        public bool IsNewUser { get; set; } = true;
         public bool ConsoleFlash { get; set; } = true;
         public bool LoadedFirstMod { get; set; } = false;
         public GameType LastGame { get; set; } = GameType.BTD6;

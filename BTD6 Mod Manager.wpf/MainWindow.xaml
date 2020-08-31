@@ -7,7 +7,7 @@
         xmlns:UserControls="clr-namespace:BTD6_Mod_Manager.UserControls"
         xmlns:local="clr-namespace:BTD6_Mod_Manager"
         mc:Ignorable="d"
-        Title="BTD6 Mod Manager" Height="650" Width="800" Loaded="Main_Loaded" Activated="Main_Activated" Closing="Main_Closing">
+        Title="BTD6 Mod Manager" Height="650" Width="800" Loaded="Main_Loaded" Activated="Main_Activated" Closing="Main_Closing" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -55,6 +55,22 @@
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
 
+                <xctk:DropDownButton x:Name="Help_Button" Background="#FF191919" Content="Help" Foreground="White" FontSize="18" DropDownContentBackground="Black">
+                    <xctk:DropDownButton.DropDownContent>
+                        <Menu>
+                            <Menu.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </Menu.ItemsPanel>
+
+                            <MenuItem x:Name="HowGetMods_Button" Header="How to get mods" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="HowGetMods_Button_Click"/>
+                            <MenuItem x:Name="HowToUse_Button" Header="How to use Mod Manager" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="HowToUse_Button_Click"/>
+                            <MenuItem x:Name="ModsBroken_Button" Header="My mods arent working!" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="ModsBroken_Button_Click"/>
+                        </Menu>
+                    </xctk:DropDownButton.DropDownContent>
+                </xctk:DropDownButton>
+                
                 <xctk:DropDownButton Visibility="Collapsed" x:Name="Testing_Button" Background="#FF191919" Content="Testing" Foreground="White" FontSize="18" DropDownContentBackground="Black">
                     <xctk:DropDownButton.DropDownContent>
                         <Menu>
@@ -81,6 +97,9 @@
                 <Button x:Name="Launch_Button" Content="Launch" Background="#FF5BC900" Width="100" Height="30" BorderBrush="Black" FontSize="16" Click="Launch_Button_Click" Foreground="White"/>
                 <Separator Margin="8,0,8,0" Background="#FF383838"/>
                 <TextBlock x:Name="Version_TextBlock" Text="Version" Foreground="#FF8D8D8D" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <Separator Margin="8,0,8,0" Background="#FF383838"/>
+                <TextBlock x:Name="Timer_TextBlock" Text="Time to inject: " Visibility="Collapsed" Foreground="#FF8D8D8D" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </ToolBar>
         </ToolBarPanel>
 

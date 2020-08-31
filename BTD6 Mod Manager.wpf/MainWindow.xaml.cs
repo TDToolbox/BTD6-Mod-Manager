@@ -41,6 +41,7 @@ namespace BTD6_Mod_Manager
     Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeAdditional") != null) // basically checks for x64 vc redist
             {
                 InitializeComponent();
+                instance = this;
             }
             else
             {
@@ -302,5 +303,31 @@ namespace BTD6_Mod_Manager
             blinkCount++;
         }
         #endregion
+
+        private void HowGetMods_Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void HowToUse_Button_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.WebBrowser browser = new Windows.WebBrowser("How to use this Mod Manager");
+            browser.Show();
+            browser.GoToURL("https://www.youtube.com/watch?v=UbcLnS6X3NU");
+        }
+
+        
+
+        private void ModsBroken_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (File.Exists(Environment.CurrentDirectory + "\\README.txt"))
+                Process.Start(Environment.CurrentDirectory + "\\README.txt");
+            else
+                Log.Output("If you are having issues with your mods, you can get help in our discord server! Click the Discord button to join!");
+        }
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
+        }
     }
 }

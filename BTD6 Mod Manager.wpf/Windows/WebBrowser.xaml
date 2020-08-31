@@ -1,0 +1,12 @@
+﻿<Window x:Class="BTD6_Mod_Manager.Windows.WebBrowser"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BTD6_Mod_Manager.Windows"
+        mc:Ignorable="d"
+        Title="WebBrowser" Height="500" Width="850" Closed="Window_Closed" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <WebBrowser x:Name="webBrowser"/>
+    </Grid>
+</Window>
