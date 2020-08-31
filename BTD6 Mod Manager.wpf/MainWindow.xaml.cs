@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,6 +61,13 @@ namespace BTD6_Mod_Manager
             UserData.UserDataLoaded += UserData_UserDataLoaded;
             TempSettings.Instance.LoadSettings();
             TempSettings.Instance.SaveSettings();
+
+            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string[] split = version.Split('.');
+            
+            if (split.Length - 1 > 2)
+                version = version.Remove(version.Length - 2, 2);
+            Version_TextBlock.Text = "Version " + version;
         }
 
         private void OnFinishedLoading()
