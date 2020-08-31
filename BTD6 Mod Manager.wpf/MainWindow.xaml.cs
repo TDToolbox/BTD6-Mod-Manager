@@ -58,6 +58,8 @@ namespace BTD6_Mod_Manager
         private void Startup()
         {
             UserData.UserDataLoaded += UserData_UserDataLoaded;
+            TempSettings.Instance.LoadSettings();
+            TempSettings.Instance.SaveSettings();
         }
 
         private void OnFinishedLoading()
@@ -75,6 +77,30 @@ namespace BTD6_Mod_Manager
                 UserData.LoadUserData();
                 UserData.SaveUserData();
             });*/
+
+            BgThread.AddToQueue(() =>
+            {
+                while (true)
+                {
+                    if (BTD_Backend.Natives.Windows.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process proc))
+                    {
+                        Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            if (Launch_Button.Content != "Inject")
+                                Launch_Button.Content = "Inject";
+                        }));   
+                    }
+                    else
+                    {
+                        Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            if (Launch_Button.Content != "Launch")
+                                Launch_Button.Content = "Launch";
+                        }));
+                    }
+                    Thread.Sleep(500);
+                }
+            });
         }
 
         private void UserData_UserDataLoaded(object sender, UserData.UserDataEventArgs e)
@@ -102,7 +128,7 @@ namespace BTD6_Mod_Manager
                 InstallDirectory = Environment.CurrentDirectory,
                 ProjectName = "BTD6 Mod Manager",
                 UpdatedZipName = "BTD6_Mod_Manager.zip",
-                UpdaterExeName = "BTD6 Mod Manager Updater.exe"
+                UpdaterExeName = "Updater.exe"
             };
 
             Thread updater = new Thread(() => update.HandleUpdates());

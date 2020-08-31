@@ -55,7 +55,7 @@
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
 
-                <xctk:DropDownButton x:Name="Testing_Button" Background="#FF191919" Content="Testing" Foreground="White" FontSize="18" DropDownContentBackground="Black">
+                <xctk:DropDownButton Visibility="Collapsed" x:Name="Testing_Button" Background="#FF191919" Content="Testing" Foreground="White" FontSize="18" DropDownContentBackground="Black">
                     <xctk:DropDownButton.DropDownContent>
                         <Menu>
                             <Menu.ItemsPanel>

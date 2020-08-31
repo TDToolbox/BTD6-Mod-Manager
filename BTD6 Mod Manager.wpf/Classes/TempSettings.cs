@@ -30,17 +30,18 @@ namespace BTD6_Mod_Manager.Classes
             set { instance = value; }
         }
 
-        public string settingsFileName { get; set; }
-        public string MainSettingsDir { get; set; }
+        public string settingsFileName { get; set; } = "settings.json";
+        public string MainSettingsDir { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
         public bool ConsoleFlash { get; set; } = true;
+        public bool LoadedFirstMod { get; set; } = false;
         public GameType LastGame { get; set; } = GameType.BTD6;
         public List<string> LastUsedMods { get; set; } = new List<string>();
         public string BTD6_ModsDir { get; set; }
         
         public TempSettings()
         {
-            settingsFileName = "settings.json";
-            MainSettingsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
+            /*settingsFileName = "settings.json";*/
+            /*MainSettingsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";*/
         }
 
         public TempSettings LoadSettings()
@@ -75,11 +76,13 @@ namespace BTD6_Mod_Manager.Classes
             string path = MainSettingsDir + "\\" + settingsFileName;
             try
             {
-                FileStream serializeFstream = new FileStream(MainSettingsDir + "\\" + settingsFileName, FileMode.OpenOrCreate);
-                StreamWriter serialize = new StreamWriter(serializeFstream);
+                /*FileStream serializeFstream = new FileStream(MainSettingsDir + "\\" + settingsFileName, FileMode.OpenOrCreate);
+                StreamWriter serialize = new StreamWriter(serializeFstream, false);*/
+
+                StreamWriter serialize = new StreamWriter(path, false);
                 serialize.Write(output);
                 serialize.Close();
-                serializeFstream.Close();
+                //serializeFstream.Close();
             }
             catch (Exception e)
             {
