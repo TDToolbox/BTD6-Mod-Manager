@@ -39,7 +39,7 @@ namespace BTD6_Mod_Manager.UserControls
             modItems = new List<ModItem_UserControl>();
 
             var mods = new DirectoryInfo(modsDir).GetFiles("*.*");
-            List<string> fileExtensions = new List<string>() { ".jet", ".zip", ".rar", ".7z", ".btd6mod" };
+            List<string> fileExtensions = new List<string>() { ".jet", ".zip", ".rar", ".7z", ".btd6mod", ".dll", ".chai" };
 
             foreach (var mod in mods)
             {
@@ -186,7 +186,7 @@ namespace BTD6_Mod_Manager.UserControls
             MainWindow.doingWork = true;
             MainWindow.workType = "Adding mods";
 
-            string allModTypes = "All Mod Types|*.jet;*.zip;*.rar;*.7z;*.btd6mod";
+            string allModTypes = "All Mod Types|*.jet;*.zip;*.rar;*.7z;*.btd6mod;*.dll;*.chai";
             List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod", "");
 
             if (mods == null || mods.Count == 0)

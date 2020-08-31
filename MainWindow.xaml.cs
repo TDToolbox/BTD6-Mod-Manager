@@ -3,6 +3,7 @@ using BTD_Backend.Game;
 using BTD_Backend.Persistence;
 using BTD_Backend.Web;
 using BTD6_Mod_Manager.Classes;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,7 +36,17 @@ namespace BTD6_Mod_Manager
         public static MainWindow instance;
         public MainWindow()
         {
-            InitializeComponent();
+            if (Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\VisualStudio\14.0\VC\Runtimes") != null ||
+    Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeAdditional") != null) // basically checks for x64 vc redist
+            {
+                InitializeComponent();
+            }
+            else
+            {
+                MessageBox.Show("You do not have the x64 Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 installed. Clicking OK will bring you to the direct download link. Mods will not work without it.", "Error!");
+                Process.Start("https://aka.ms/vs/16/release/vc_redist.x64.exe");
+            }
+
             SessionData.CurrentGame = GameType.BTD6;
             Log.MessageLogged += Log_MessageLogged;
 
@@ -89,7 +100,7 @@ namespace BTD6_Mod_Manager
                 ProjectExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe",
                 InstallDirectory = Environment.CurrentDirectory,
                 ProjectName = "BTD6 Mod Manager",
-                UpdatedZipName = "BTD6 Mod Manager.zip"
+                UpdatedZipName = "BTD6_Mod_Manager.zip"
             };
 
             Thread updater = new Thread(() => update.HandleUpdates(false));

@@ -20,7 +20,6 @@
         <Button x:Name="AutoUpdate_MoreInfo_Button" Content="More Info?" Click="AutoUpdate_MoreInfo_Button_Click" HorizontalAlignment="Left" Margin="97,87,0,0" VerticalAlignment="Top" Width="75"/>
         <TextBox x:Name="AutoUpdate_TextBox" HorizontalAlignment="Left" Height="28" Margin="259,62,0,0" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalAlignment="Top" Width="461" Background="White" Foreground="Black" FontSize="18"/>
         <Button x:Name="AutoUpdate_Browse_Button" Content="Browse" Click="AutoUpdate_Browse_Button_Click" ToolTip="Select the file you want to watch for changes." HorizontalAlignment="Left" Margin="725,62,0,0" VerticalAlignment="Top" Width="50" Height="28"/>
-        <Button x:Name="Close_Button" Content="Close" Click="Close_Button_Click" HorizontalAlignment="Left" Margin="630,361,0,0" VerticalAlignment="Top" Width="130" Height="38"/>
         <Button x:Name="CheckForChanges_Button" Content="Begin Checking for Changes" ToolTip="This will start the process of checking for changes in your mod" HorizontalAlignment="Left" Margin="576,95,0,0" VerticalAlignment="Top" Width="199" Click="CheckForChanges_Button_Click"/>
 
     </Grid>
