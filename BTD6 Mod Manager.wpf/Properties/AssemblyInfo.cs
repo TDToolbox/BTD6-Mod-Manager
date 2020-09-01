@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BTD6 Mod Manager")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A mod manager for BTD6")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TD Toolbox")]
 [assembly: AssemblyProduct("BTD6 Mod Manager")]
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.5")]
-[assembly: AssemblyFileVersion("1.0.5")]
+[assembly: AssemblyVersion("1.0.6")]
+[assembly: AssemblyFileVersion("1.0.6")]

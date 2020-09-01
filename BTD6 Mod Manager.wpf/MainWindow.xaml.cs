@@ -88,6 +88,22 @@ namespace BTD6_Mod_Manager
                 UserData.SaveUserData();
             });*/
 
+            if (TempSettings.Instance.IsNewUser)
+            {
+                var diag = MessageBox.Show("Would you like to see a tutorial on how to use this mod manager?", "Open tutorial?", MessageBoxButton.YesNo);
+                if (diag == MessageBoxResult.Yes)
+                {
+                    Windows.WebBrowser browser = new Windows.WebBrowser("How to use this Mod Manager");
+                    browser.Show();
+                    browser.GoToURL("https://youtu.be/RyB5MyMpOlE?t=613");
+                }
+                else
+                    MessageBox.Show("Okay. If you want to see it later, just click on the \"Help\" at the top of the mod manager," +
+                        " then click \"How to use Mod Manager\"");
+                TempSettings.Instance.IsNewUser = false;
+                TempSettings.Instance.SaveSettings();
+            }
+
             BgThread.AddToQueue(() =>
             {
                 string btd6ExePath = SteamUtils.GetGameDir(GameType.BTD6) + "\\" + GameInfo.GetGame(GameType.BTD6).EXEName;
@@ -306,14 +322,17 @@ namespace BTD6_Mod_Manager
 
         private void HowGetMods_Button_Click(object sender, RoutedEventArgs e)
         {
-
+            Windows.WebBrowser browser = new Windows.WebBrowser("How to get mods");
+            browser.Show();
+            browser.GoToURL("https://youtu.be/RyB5MyMpOlE?t=1077");
         }
+        
 
         private void HowToUse_Button_Click(object sender, RoutedEventArgs e)
         {
             Windows.WebBrowser browser = new Windows.WebBrowser("How to use this Mod Manager");
             browser.Show();
-            browser.GoToURL("https://www.youtube.com/watch?v=UbcLnS6X3NU");
+            browser.GoToURL("https://youtu.be/RyB5MyMpOlE?t=613");
         }
 
         
