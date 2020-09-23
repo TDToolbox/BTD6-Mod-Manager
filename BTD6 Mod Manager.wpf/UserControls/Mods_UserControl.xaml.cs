@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Reflection;
 using MelonLoader;
+using System.Linq;
+using System.Threading;
 
 namespace BTD6_Mod_Manager.UserControls
 {
@@ -24,73 +26,86 @@ namespace BTD6_Mod_Manager.UserControls
         public static Mods_UserControl instance;
         public List<string> modPaths = new List<string>();
         public List<ModItem_UserControl> modItems = new List<ModItem_UserControl>();
-        List<string> fileExtensions = new List<string>() { ".dll", ".boo",".jet", ".zip", ".rar", ".7z", ".btd6mod", ".chai" };
+        List<string> fileExtensions = new List<string>() { ".dll", ".boo", ".wbp", ".jet", ".zip", ".rar", ".7z", ".btd6mod", ".chai" };
 
         public Mods_UserControl()
         {
             InitializeComponent();
+            RepopulateMods += Mods_UserControl_RepopulateMods;
             instance = this;   
+        }
+
+        private void Mods_UserControl_RepopulateMods(object sender, ModUcEventArgs e)
+        {
+            PopulateMods(SessionData.CurrentGame);
         }
 
         public void PopulateMods(GameType game)
         {
-            string modsDir = TempSettings.Instance.GetModsDir(game);
-            if (String.IsNullOrEmpty(modsDir) || !Directory.Exists(modsDir))
-                return;
-
-            Mods_ListBox.Items.Clear();
-            SelectedMods_ListBox.Items.Clear();
-            modPaths = new List<string>();
-            modItems = new List<ModItem_UserControl>();
-
-            var mods = new DirectoryInfo(modsDir).GetFiles("*.*");
-
-
-
-            foreach (var item in fileExtensions)
+            //invoking so this can happen on thread
+            this.Dispatcher.BeginInvoke((Action)(() =>
             {
-                foreach (var mod in mods)
+                string modsDir = TempSettings.Instance.GetModsDir(game);
+                if (String.IsNullOrEmpty(modsDir) || !Directory.Exists(modsDir))
+                    return;
+
+            
+                Mods_ListBox.Items.Clear();
+                SelectedMods_ListBox.Items.Clear();
+                modPaths = new List<string>();
+                modItems = new List<ModItem_UserControl>();
+
+                var mods = new DirectoryInfo(modsDir).GetFiles("*.*");
+
+
+
+                foreach (var item in fileExtensions)
                 {
-                    string modName = mod.Name.Replace(disabledKey, "");
-                    if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
-                        continue;
+                    foreach (var mod in mods)
+                    {
+                        string modName = mod.Name.Replace(disabledKey, "");
+                        if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
+                            continue;
 
-                    if (item == ".dll" && !BTD_Backend.NKHook6.MelonModHandling.IsValidMelonMod(mod.FullName))
-                        continue;
+                        if (item == ".dll" && !BTD_Backend.NKHook6.MelonModHandling.IsValidMelonMod(mod.FullName))
+                            continue;
 
-                    AddItemToModsList(mod);
-                }
-            }
-
-            if (TempSettings.Instance.LastUsedMods == null)
-                return;
-
-            List<string> TempList = new List<string>();
-            foreach (var mod in TempSettings.Instance.LastUsedMods)
-            {
-                if ((!File.Exists(mod) && !File.Exists(mod + disabledKey)) || String.IsNullOrEmpty(mod))
-                {
-                    Log.Output("Attempted to add a mod that doesnt exist to the Selected Mods list");
-                    continue;
+                        AddItemToModsList(mod);
+                    }
                 }
 
-                string modName = "";
-                if (File.Exists(mod))
-                    modName = mod;
-                else
-                    modName = mod + disabledKey;
+                if (TempSettings.Instance.LastUsedMods == null)
+                    return;
 
-                TempList.Add(modName);
-                AddToSelectedModLB(modName);
-            }
+                List<string> TempList = new List<string>();
+                foreach (var mod in TempSettings.Instance.LastUsedMods)
+                {
+                    if ((!File.Exists(mod) && !File.Exists(mod + disabledKey)) || String.IsNullOrEmpty(mod))
+                    {
+                        Log.Output("Attempted to add a mod that doesnt exist to the Selected Mods list");
+                        continue;
+                    }
 
-            if (TempList.Count != TempSettings.Instance.LastUsedMods.Count)
-            {
-                TempSettings.Instance.LastUsedMods = new List<string>();
-                TempSettings.Instance.SaveSettings();
-            }
+                    string modName = "";
+                    if (File.Exists(mod))
+                        modName = mod;
+                    else
+                        modName = mod + disabledKey;
 
-            SelectedMods_ListBox.SelectedIndex = 0;
+                    TempList.Add(modName);
+                    AddToSelectedModLB(modName);
+                }
+
+                if (TempList.Count != TempSettings.Instance.LastUsedMods.Count)
+                {
+                    TempSettings.Instance.LastUsedMods = TempList;
+                    SessionData.LoadedMods = TempList;
+                    TempSettings.Instance.SaveSettings();
+                }
+
+                SelectedMods_ListBox.SelectedIndex = 0;
+
+            }));
         }
 
         public void RemoveFromSelectedLB(string modPath)
@@ -119,7 +134,6 @@ namespace BTD6_Mod_Manager.UserControls
                 return;
 
             FileInfo f = new FileInfo(modPath);
-
             if (f.FullName.EndsWith(disabledKey))
             {
                 string newName = f.FullName.Replace(disabledKey, "");
@@ -207,7 +221,6 @@ namespace BTD6_Mod_Manager.UserControls
                 }
             }
 
-            //Mods_Dir_TextBox.Text = path;
             TempSettings.Instance.SetModsDir(SessionData.CurrentGame, path);
             Mods_UserControl.instance.PopulateMods(SessionData.CurrentGame);
         }
@@ -216,6 +229,23 @@ namespace BTD6_Mod_Manager.UserControls
         private void ModsUserControl_Loaded(object sender, RoutedEventArgs e)
         {
             PopulateMods(SessionData.CurrentGame);
+
+            BgThread.AddToQueue(() =>
+            {
+                string modsDir = GameInfo.GetGame(SessionData.CurrentGame).GameDir + "\\Mods";
+                int lastFileCount = Directory.GetFiles(modsDir).Count();
+                
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    var files = Directory.GetFiles(modsDir);
+                    if (files.Count() == lastFileCount)
+                        continue;
+
+                    lastFileCount = files.Count();
+                    OnRepopulateMods(new ModUcEventArgs());
+                }
+            });
         }
         private void ModsUserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -254,7 +284,7 @@ namespace BTD6_Mod_Manager.UserControls
             }
             allModTypes = allModTypes.TrimEnd(';');
 
-            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|boo files (*.boo)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod|Chai files (*.chai)", "");
+            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|boo files (*.boo)|wbp files (*.wbp)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod|Chai files (*.chai)", "");
 
             if (mods == null || mods.Count == 0)
             {
@@ -280,7 +310,37 @@ namespace BTD6_Mod_Manager.UserControls
 
         //private void SelectedMods_ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => HandlePriorityButtons();
 
-        
+
+        #region Events
+
+        /// <summary>
+        /// Event is fired when the password list is successfully aquired
+        /// </summary>
+        public static event EventHandler<ModUcEventArgs> RepopulateMods;
+
+        /// <summary>
+        /// Events related to JetPasswords
+        /// </summary>
+        public class ModUcEventArgs : EventArgs
+        {
+            
+        }
+
+        /// <summary>
+        /// Fired when the password list was successfully aquired. Passes password list as arg
+        /// </summary>
+        /// <param name="e">JetPasswordEvetnArgs takes the aquired password list as an argument</param>
+        public void OnRepopulateMods(ModUcEventArgs e)
+        {
+            EventHandler<ModUcEventArgs> handler = RepopulateMods;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        #endregion
+
+
+
         #endregion
     }
 }
