@@ -7,7 +7,7 @@
         xmlns:UserControls="clr-namespace:BTD6_Mod_Manager.UserControls"
         xmlns:local="clr-namespace:BTD6_Mod_Manager"
         mc:Ignorable="d"
-        Title="BTD6 Mod Manager" Height="650" Width="800" Loaded="Main_Loaded" Activated="Main_Activated" Closing="Main_Closing" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+        Title="BTD6 Mod Manager" Height="650" Width="800" WindowState="Maximized" Loaded="Main_Loaded" Activated="Main_Activated" Closing="Main_Closing" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -16,8 +16,8 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    
-    
+
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -70,7 +70,7 @@
                         </Menu>
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
-                
+
                 <xctk:DropDownButton Visibility="Collapsed" x:Name="Testing_Button" Background="#FF191919" Content="Testing" Foreground="White" FontSize="18" DropDownContentBackground="Black">
                     <xctk:DropDownButton.DropDownContent>
                         <Menu>
@@ -84,6 +84,14 @@
                         </Menu>
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
+
+                <Separator Margin="8,0,8,0"/>
+                <Button x:Name="Nexus_Button" Background="#FFEAA666" Width="130" Height="30" BorderBrush="Black" FontSize="16" Click="Nexus_Button_Click" VerticalAlignment="Bottom">
+                    <DockPanel>
+                        <TextBlock Text=" NexusMods " Foreground="White"/>
+                        <Image Source="Resources/nexusmods logo.png" Stretch="Uniform"/>
+                    </DockPanel>
+                </Button>
 
                 <Separator Margin="8,0,8,0"/>
                 <Button x:Name="Discord_Button" Background="#FF69B2FB" Width="100" Height="30" BorderBrush="Black" FontSize="16" Click="Discord_Button_Click" VerticalAlignment="Bottom">
@@ -104,9 +112,13 @@
         </ToolBarPanel>
 
         <Grid Grid.Row="1">
-            <UserControls:Mods_UserControl/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="203*"/>
+                <ColumnDefinition Width="589*"/>
+            </Grid.ColumnDefinitions>
+            <UserControls:Mods_UserControl Grid.ColumnSpan="2"/>
         </Grid>
-        
+
         <Grid Grid.Row="2" >
             <Grid Background="{StaticResource BrushBackgroundL}">
                 <Grid.RowDefinitions>

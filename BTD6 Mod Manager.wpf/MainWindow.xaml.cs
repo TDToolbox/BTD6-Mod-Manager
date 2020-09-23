@@ -63,6 +63,9 @@ namespace BTD6_Mod_Manager
             TempSettings.Instance.LoadSettings();
             TempSettings.Instance.SaveSettings();
 
+            if (TempSettings.Instance.BTD6_ModsDir.Contains(TempSettings.Instance.MainSettingsDir))
+                MoveModsToNewFolder();
+
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             string[] split = version.Split('.');
             
@@ -82,12 +85,6 @@ namespace BTD6_Mod_Manager
             UserData.MainSettingsDir = tdloaderDir;
             UserData.UserDataFilePath = tdloaderDir + "\\userdata.json";
 
-            /*BgThread.AddToQueue(() =>
-            {
-                UserData.LoadUserData();
-                UserData.SaveUserData();
-            });*/
-
             if (TempSettings.Instance.IsNewUser)
             {
                 var diag = MessageBox.Show("Would you like to see a tutorial on how to use this mod manager?", "Open tutorial?", MessageBoxButton.YesNo);
@@ -104,20 +101,28 @@ namespace BTD6_Mod_Manager
                 TempSettings.Instance.SaveSettings();
             }
 
+            var game = GameInfo.GetGame(SessionData.CurrentGame);
+            string btd6ExePath = game.GameDir + "\\" + game.EXEName;
+            FileInfo btd6File = new FileInfo(btd6ExePath);
+
             BgThread.AddToQueue(() =>
             {
-                string btd6ExePath = SteamUtils.GetGameDir(GameType.BTD6) + "\\" + GameInfo.GetGame(GameType.BTD6).EXEName;
-                FileInfo btd6File = new FileInfo(btd6ExePath);
-
                 while (true)
                 {
-                    if (BTD_Backend.Natives.Windows.IsProgramRunning(btd6File, out Process proc))
+                    if (BTD_Backend.Natives.Utility.IsProgramRunning(btd6File, out Process proc))
                     {
                         Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
                         {
-                            if (Launch_Button.Content != "Inject")
-                                Launch_Button.Content = "Inject";
-                        }));   
+                            foreach (var item in TempSettings.Instance.LastUsedMods)
+                            {
+                                if (item.ToLower().EndsWith(".btd6mod"))
+                                {
+                                    if (Launch_Button.Content != "Inject")
+                                        Launch_Button.Content = "Inject";
+                                    break;
+                                }
+                            }
+                        }));
                     }
                     else
                     {
@@ -127,9 +132,40 @@ namespace BTD6_Mod_Manager
                                 Launch_Button.Content = "Launch";
                         }));
                     }
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                 }
             });
+        }
+
+        private void MoveModsToNewFolder()
+        {
+            string oldModsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader\\BTD6 Mods";
+            
+            Log.Output("Path to BTD6 mods is outdated. Moving mods folder");
+
+            string btd6ExePath = SteamUtils.GetGameDir(SessionData.CurrentGame);
+            string newModsDir = btd6ExePath + "\\Mods";
+
+            TempSettings.Instance.BTD6_ModsDir = newModsDir;
+            TempSettings.Instance.SaveSettings();
+
+            if (!Directory.Exists(oldModsDir))
+                return;
+
+            if (!Directory.Exists(newModsDir))
+                Directory.CreateDirectory(newModsDir);
+
+            var files = Directory.GetFiles(oldModsDir);
+
+            foreach (var item in files)
+            {
+                FileInfo f = new FileInfo(item);
+                string newPath = newModsDir + "\\" + f.Name;
+                if (!File.Exists(newPath))
+                    File.Move(f.FullName, newPath);
+            }
+
+            
         }
 
         private void UserData_UserDataLoaded(object sender, UserData.UserDataEventArgs e)
@@ -149,6 +185,7 @@ namespace BTD6_Mod_Manager
 
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
+            
 
             UpdateHandler update = new UpdateHandler()
             {
@@ -160,9 +197,16 @@ namespace BTD6_Mod_Manager
                 UpdaterExeName = "Updater.exe"
             };
 
-            Thread updater = new Thread(() => update.HandleUpdates());
-            updater.IsBackground = true;
-            BgThread.AddToQueue(updater);
+            var game = GameInfo.GetGame(SessionData.CurrentGame);
+            BgThread.AddToQueue(() => 
+            {
+                update.HandleUpdates();
+                string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
+                BTD_Backend.NKHook6.MelonModHandling.HandleUpdates(game.GameDir, gameD);
+                
+                string nkh = game.GameDir + "\\Mods\\NKHook6.dll";
+                BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);
+            });
         }
 
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)
@@ -235,9 +279,15 @@ namespace BTD6_Mod_Manager
 
             Launcher.Launch();
         }
+
+        private void Nexus_Button_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://www.nexusmods.com/bloonstd6");
+        }
+
         private void Discord_Button_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("https://discord.gg/NnD6nRH");
+            Process.Start("https://discord.gg/VADMF2M");
         }
 
         private void OpenBTD6_ModDir_Button_Click(object sender, RoutedEventArgs e)
@@ -249,7 +299,7 @@ namespace BTD6_Mod_Manager
                 //UserData.SaveUserData();
             }
 
-            string dir = TempSettings.Instance.GetModsDir(GameType.BTD6);
+            string dir = TempSettings.Instance.GetModsDir(SessionData.CurrentGame);
             if (String.IsNullOrEmpty(dir))
                 return;
 

@@ -77,23 +77,19 @@ namespace BTD6_Mod_Manager.Classes
             string path = MainSettingsDir + "\\" + settingsFileName;
             try
             {
-                /*FileStream serializeFstream = new FileStream(MainSettingsDir + "\\" + settingsFileName, FileMode.OpenOrCreate);
-                StreamWriter serialize = new StreamWriter(serializeFstream, false);*/
-
                 StreamWriter serialize = new StreamWriter(path, false);
                 serialize.Write(output);
                 serialize.Close();
-                //serializeFstream.Close();
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                Log.Output(e.Message, OutputType.Both);
             }
         }
 
         public void CreateNewSettings()
         {
-            BTD6_ModsDir = MainSettingsDir + "\\BTD6 Mods";
+            BTD6_ModsDir = GameInfo.GetGame(GameType.BTD6).GameDir + "\\Mods";
             SaveSettings();
         }
 

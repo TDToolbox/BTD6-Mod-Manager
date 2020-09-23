@@ -23,7 +23,7 @@ namespace BTD6_Mod_Manager.Classes
             BgThread.AddToQueue(() =>
             {
                 var checkForCrash_start = DateTime.Now;
-                while (BTD_Backend.Natives.Windows.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process btd6Proc))
+                while (BTD_Backend.Natives.Utility.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process btd6Proc))
                     Thread.Sleep(100);
 
                 if (!Directory.Exists(crash_report_path))

@@ -16,7 +16,26 @@ namespace BTD6_Mod_Manager.Classes
             var launcher = new Launcher();
 
             TempSettings.Instance.SaveSettings();
-            BgThread.AddToQueue(() => launcher.LaunchBTD6());
+
+            bool inject = false;
+            foreach (var item in TempSettings.Instance.LastUsedMods)
+            {
+                if (item.ToLower().EndsWith(".btd6mod"))
+                {
+                    inject = true;
+                    break;
+                }
+            }
+            
+            if (inject)
+                BgThread.AddToQueue(() => launcher.LaunchBTD6());
+            else
+            {
+                var gameInfo = GameInfo.GetGame(SessionData.CurrentGame);
+
+                if (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out var btd6Proc))
+                    Process.Start("steam://rungameid/" + gameInfo.SteamID);
+            }
         }
 
         public void LaunchBTD6()
@@ -39,14 +58,14 @@ namespace BTD6_Mod_Manager.Classes
         private int WaitForBTD6(out Process btd6Proc)
         {
             int injectWaitTime = 15000;
-            var btd6Info = GameInfo.GetGame(GameType.BTD6);
+            var gameInfo = GameInfo.GetGame(SessionData.CurrentGame);
 
-            if (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6Info.ProcName, out btd6Proc))
-                Process.Start("steam://rungameid/" + btd6Info.SteamID);
+            if (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
+                Process.Start("steam://rungameid/" + gameInfo.SteamID);
             else
                 injectWaitTime = 0;
 
-            while (!BTD_Backend.Natives.Windows.IsProgramRunning(btd6Info.ProcName, out btd6Proc))
+            while (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
                 Thread.Sleep(1000);
 
             return injectWaitTime;

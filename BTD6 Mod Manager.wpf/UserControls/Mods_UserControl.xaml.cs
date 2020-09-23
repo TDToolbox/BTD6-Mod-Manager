@@ -10,6 +10,8 @@ using System.Resources;
 using System.Windows.Threading;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Reflection;
+using MelonLoader;
 
 namespace BTD6_Mod_Manager.UserControls
 {
@@ -18,9 +20,12 @@ namespace BTD6_Mod_Manager.UserControls
     /// </summary>
     public partial class Mods_UserControl : UserControl
     {
+        public readonly string disabledKey = ".disabled";
         public static Mods_UserControl instance;
         public List<string> modPaths = new List<string>();
         public List<ModItem_UserControl> modItems = new List<ModItem_UserControl>();
+        List<string> fileExtensions = new List<string>() { ".dll", ".boo",".jet", ".zip", ".rar", ".7z", ".btd6mod", ".chai" };
+
         public Mods_UserControl()
         {
             InitializeComponent();
@@ -39,63 +44,104 @@ namespace BTD6_Mod_Manager.UserControls
             modItems = new List<ModItem_UserControl>();
 
             var mods = new DirectoryInfo(modsDir).GetFiles("*.*");
-            List<string> fileExtensions = new List<string>() { ".jet", ".zip", ".rar", ".7z", ".btd6mod", ".dll", ".chai" };
 
-            foreach (var mod in mods)
+
+
+            foreach (var item in fileExtensions)
             {
-                bool goodExtension = false;
-                foreach (var item in fileExtensions)
+                foreach (var mod in mods)
                 {
-                    if (!mod.Name.EndsWith(item))
+                    string modName = mod.Name.Replace(disabledKey, "");
+                    if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
                         continue;
-                    
-                    goodExtension = true;
-                    break;
+
+                    if (item == ".dll" && !BTD_Backend.NKHook6.MelonModHandling.IsValidMelonMod(mod.FullName))
+                        continue;
+
+                    AddItemToModsList(mod);
                 }
-
-                if (!goodExtension || Mods_ListBox.Items.Contains(mod))
-                    continue;
-
-                AddItemToModsList(mod);
             }
 
             if (TempSettings.Instance.LastUsedMods == null)
                 return;
 
             List<string> TempList = new List<string>();
-            foreach (var selected in TempSettings.Instance.LastUsedMods)
+            foreach (var mod in TempSettings.Instance.LastUsedMods)
             {
-                if (!File.Exists(selected) || String.IsNullOrEmpty(selected))
+                if ((!File.Exists(mod) && !File.Exists(mod + disabledKey)) || String.IsNullOrEmpty(mod))
                 {
                     Log.Output("Attempted to add a mod that doesnt exist to the Selected Mods list");
                     continue;
                 }
-                TempList.Add(selected);
-                AddToSelectedModLB(selected);
+
+                string modName = "";
+                if (File.Exists(mod))
+                    modName = mod;
+                else
+                    modName = mod + disabledKey;
+
+                TempList.Add(modName);
+                AddToSelectedModLB(modName);
             }
 
             if (TempList.Count != TempSettings.Instance.LastUsedMods.Count)
             {
                 TempSettings.Instance.LastUsedMods = new List<string>();
-                foreach (var item in TempList)
-                {
-                    TempSettings.Instance.LastUsedMods.Add(item);
-                }
+                TempSettings.Instance.SaveSettings();
             }
 
             SelectedMods_ListBox.SelectedIndex = 0;
         }
 
-        private void AddToSelectedModLB(string modPath)
+        public void RemoveFromSelectedLB(string modPath)
         {
+            var modFile = new FileInfo(modPath);
+
+            SelectedMods_ListBox.Items.Remove(modFile.Name);
+            SelectedMods_ListBox.SelectedIndex = SelectedMods_ListBox.Items.Count - 1;
+
+            if (TempSettings.Instance.LastUsedMods.Contains(modFile.FullName))
+                TempSettings.Instance.LastUsedMods.Remove(modFile.FullName);
+
+            if (!modFile.FullName.Contains(".btd6mod") && !modFile.FullName.EndsWith(disabledKey))
+            {
+                string newPath = modFile.FullName + disabledKey;
+                if (File.Exists(newPath))
+                    File.Delete(newPath);
+
+                File.Move(modFile.FullName, newPath);
+            }
+        }
+
+        public void AddToSelectedModLB(string modPath)
+        {
+            if (String.IsNullOrEmpty(modPath.Trim()))
+                return;
+
             FileInfo f = new FileInfo(modPath);
 
-            modPaths.Add(modPath);
+            if (f.FullName.EndsWith(disabledKey))
+            {
+                string newName = f.FullName.Replace(disabledKey, "");
+                if (File.Exists(newName))
+                    File.Delete(newName);
+
+                File.Move(f.FullName, newName);
+                f = new FileInfo(newName);
+            }
+
+            modPaths.Add(f.FullName);
+            if (!TempSettings.Instance.LastUsedMods.Contains(f.FullName))
+            {
+                TempSettings.Instance.LastUsedMods.Add(f.FullName);
+                TempSettings.Instance.SaveSettings();
+            }
+
             SelectedMods_ListBox.Items.Add(f.Name);
 
             foreach (var modItem in modItems)
             {
-                if (modItem.ToString() == modPath)
+                if (modItem.ToString().Replace(disabledKey, "") == modPath.Replace(disabledKey, ""))
                     modItem.Enable_CheckBox.IsChecked = true;
             }
 
@@ -106,13 +152,27 @@ namespace BTD6_Mod_Manager.UserControls
         public void AddItemToModsList(string modPath) => AddItemToModsList(new FileInfo(modPath));
         public void AddItemToModsList(FileInfo modFile)
         {
-            /*if (Mods_ListBox.ActualWidth <= 0)
-                return;*/
+            string modName = "";
+
+            if (!modFile.FullName.Contains(".btd6mod") && !
+                TempSettings.Instance.LastUsedMods.Contains(modFile.FullName) && 
+                !modFile.FullName.EndsWith(disabledKey))
+            {
+                string newPath = modFile.FullName + disabledKey;
+                if (File.Exists(newPath))
+                    File.Delete(newPath);
+
+                File.Move(modFile.FullName, newPath);
+                
+                modFile = new FileInfo(newPath);
+            }
+
+            modName = modFile.Name.Replace(disabledKey, "");
 
             ModItem_UserControl item = new ModItem_UserControl();
             item.MinWidth = Mods_ListBox.ActualWidth - 31;
-            item.ModName.Text = modFile.Name;
-            item.modName = modFile.Name;
+            item.ModName.Text = modName;
+            item.modName = modName;
             item.modPath = modFile.FullName;
 
             Thickness margin = item.Margin;
@@ -186,8 +246,15 @@ namespace BTD6_Mod_Manager.UserControls
             MainWindow.doingWork = true;
             MainWindow.workType = "Adding mods";
 
-            string allModTypes = "All Mod Types|*.jet;*.zip;*.rar;*.7z;*.btd6mod;*.dll;*.chai";
-            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod", "");
+            //string allModTypes = "All Mod Types|*.jet;*.zip;*.rar;*.7z;*.btd6mod;*.dll;*.boo;*.chai";
+            string allModTypes = "All Mod Types|";
+            foreach (var item in fileExtensions)
+            {
+                allModTypes += "*" + item + ";";
+            }
+            allModTypes = allModTypes.TrimEnd(';');
+
+            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|boo files (*.boo)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod|Chai files (*.chai)", "");
 
             if (mods == null || mods.Count == 0)
             {
