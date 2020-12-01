@@ -79,7 +79,7 @@ namespace BTD6_Mod_Manager
         {
             Log.Output("Welcome to BTD6 Mod Manager!");
             
-            string tdloaderDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
+            string tdloaderDir = Environment.CurrentDirectory + "\\";
             UserData.MainProgramExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe";
             UserData.MainProgramName = "BTD6 Mod Manager";
             UserData.MainSettingsDir = tdloaderDir;
@@ -185,7 +185,7 @@ namespace BTD6_Mod_Manager
 
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
-            
+
 
             UpdateHandler update = new UpdateHandler()
             {
@@ -198,17 +198,20 @@ namespace BTD6_Mod_Manager
             };
 
             var game = GameInfo.GetGame(SessionData.CurrentGame);
-            BgThread.AddToQueue(() => 
+            if (TempSettings.Instance.Update==true)
             {
-                update.HandleUpdates();
-                string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
-                BTD_Backend.NKHook6.MelonModHandling.HandleUpdates(game.GameDir, gameD);
-                
-                string nkh = game.GameDir + "\\Mods\\NKHook6.dll";
-                BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);
-            });
-        }
+                BgThread.AddToQueue(() =>
+                {
+                    update.HandleUpdates();
+                    string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
+                    BTD_Backend.NKHook6.MelonModHandling.HandleUpdates(game.GameDir, gameD);
 
+                    string nkh = game.GameDir + "\\Mods\\NKHook6.dll";
+                    BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);
+                });
+            }
+        }
+        
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)
         {
             ToolBar toolBar = sender as ToolBar;
