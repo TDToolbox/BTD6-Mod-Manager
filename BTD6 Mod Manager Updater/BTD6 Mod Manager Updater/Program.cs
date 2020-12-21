@@ -30,6 +30,7 @@ namespace BTD6_Mod_Manager_Updater
 
             Output("Restarting " + projName + "...");
             Process.Start(projExe);
+            Output("Update complete. You may now close this window");
         }
 
         public static void ExtractFiles()
@@ -41,20 +42,28 @@ namespace BTD6_Mod_Manager_Updater
                 if (!file.EndsWith(".zip") && !file.EndsWith(".rar") && !file.EndsWith(".7z"))
                     continue;
 
+                var fileInfo = new FileInfo(file);
+                string cleanedName = fileInfo.Name.Replace(".", "").Replace(" ","").Replace("_","").ToLower();
+                if (cleanedName != "btd6modmanagerzip")
+                    continue;
+
+                
+
                 using (ZipArchive archive = ZipFile.OpenRead(file))
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        if (entry.FullName.ToLower().Contains("update"))
-                            continue;
-
                         string destinationPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, entry.FullName));
                         if (destinationPath.StartsWith(Environment.CurrentDirectory, StringComparison.Ordinal))
                         {
+                            if (new FileInfo(destinationPath).Name == "Updater.exe")
+                                continue;
+
                             if (File.Exists(destinationPath))
                                 File.Delete(destinationPath);
 
                             entry.ExtractToFile(destinationPath);
+                            Output($"Extracting file: {destinationPath}");
                         }
                     }
                 }

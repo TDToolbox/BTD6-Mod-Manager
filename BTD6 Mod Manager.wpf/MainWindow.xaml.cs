@@ -3,6 +3,7 @@ using BTD_Backend.Game;
 using BTD_Backend.Persistence;
 using BTD_Backend.Web;
 using BTD6_Mod_Manager.Classes;
+using Ionic.Zip;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,7 @@ namespace BTD6_Mod_Manager
 
             SessionData.CurrentGame = GameType.BTD6;
             Log.MessageLogged += Log_MessageLogged;
+            Lib.Log.MessageLogged += Log_MessageLogged1; ;
 
             Log.Output("Program initializing...");
             Startup();
@@ -174,6 +176,42 @@ namespace BTD6_Mod_Manager
             handler.EnableCrashLog();*/
         }
 
+        private void DeleteOldUpdaterFiles()
+        {
+            var files = new DirectoryInfo(Environment.CurrentDirectory).GetFiles();
+            foreach (var file in files)
+            {
+                if (file.Name == "Updater.exe")
+                    file.Delete();
+
+                string cleanedName = file.Name.Replace(".", "").Replace(" ", "").Replace("_", "").ToLower();
+                if (cleanedName == "btd6modmanagerzip")
+                    file.Delete();
+            }
+        }
+
+        private void ExtractNewUpdater()
+        {
+            var files = new DirectoryInfo(Environment.CurrentDirectory).GetFiles();
+            foreach (var file in files)
+            {
+                string cleanedName = file.Name.Replace(".", "").Replace(" ", "").Replace("_", "").ToLower();
+                if (cleanedName != "btd6modmanagerzip")
+                    continue;
+
+                ZipFile zip = new ZipFile(file.FullName);
+                foreach (var entry in zip.Entries)
+                {
+                    MessageBox.Show(entry.FileName);
+                    if (entry.FileName != "Updater.exe")
+                        continue;
+                    
+                    entry.Extract();
+                    break;  
+                }
+            }
+        }
+
         #region UI Events
         //========================================================
 
@@ -185,9 +223,9 @@ namespace BTD6_Mod_Manager
 
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
-            
 
-            UpdateHandler update = new UpdateHandler()
+
+            /*UpdateHandler update = new UpdateHandler() //Removed updates due to causing issues
             {
                 GitApiReleasesURL = "https://api.github.com/repos/TDToolbox/BTD6-Mod-Manager/releases",
                 ProjectExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe",
@@ -195,17 +233,22 @@ namespace BTD6_Mod_Manager
                 ProjectName = "BTD6 Mod Manager",
                 UpdatedZipName = "BTD6_Mod_Manager.zip",
                 UpdaterExeName = "Updater.exe"
-            };
+            };*/
+
+            Lib.Web.UpdateHandler update = new Lib.Web.UpdateHandler();
+
+            DeleteOldUpdaterFiles();
+            ExtractNewUpdater();
 
             var game = GameInfo.GetGame(SessionData.CurrentGame);
             BgThread.AddToQueue(() => 
             {
-                update.HandleUpdates();
+                update.HandleUpdates(); //Removed updates due to causing issues
                 string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
                 BTD_Backend.NKHook6.MelonModHandling.HandleUpdates(game.GameDir, gameD);
                 
-                string nkh = game.GameDir + "\\Mods\\NKHook6.dll";
-                BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);
+                /*string nkh = game.GameDir + "\\Mods\\NKHook6.dll"; //nkh is no longer used
+                BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);*/
             });
         }
 
@@ -323,6 +366,26 @@ namespace BTD6_Mod_Manager
                 
                 if (e.Output == OutputType.Both)
                     System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ",""));
+            }
+
+            if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)
+                blinkTimer.Start();
+        }
+
+        private void Log_MessageLogged1(object sender, Lib.Log.LogEvents e)
+        {
+            if (e.Output == Lib.OutputType.MsgBox)
+                System.Windows.Forms.MessageBox.Show(e.Message);
+            else
+            {
+                OutputLog.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    OutputLog.AppendText(e.Message);
+                    OutputLog.ScrollToEnd();
+                }));
+
+                if (e.Output == Lib.OutputType.Both)
+                    System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ", ""));
             }
 
             if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)

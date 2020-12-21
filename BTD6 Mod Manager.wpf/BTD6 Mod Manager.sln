@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BTD6 Mod Manager", "BTD6 Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BTD6 Mod Manager Updater", "..\BTD6 Mod Manager Updater\BTD6 Mod Manager Updater\BTD6 Mod Manager Updater.csproj", "{688E242D-A69E-45E7-BD15-D11C2BB7BF7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BTD6 Mod Manager.Lib", "..\BTD6 Mod Manager.Lib\BTD6 Mod Manager.Lib.csproj", "{89BE6356-DBD7-4F31-BE34-F2912E611171}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{688E242D-A69E-45E7-BD15-D11C2BB7BF7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{688E242D-A69E-45E7-BD15-D11C2BB7BF7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{688E242D-A69E-45E7-BD15-D11C2BB7BF7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89BE6356-DBD7-4F31-BE34-F2912E611171}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89BE6356-DBD7-4F31-BE34-F2912E611171}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89BE6356-DBD7-4F31-BE34-F2912E611171}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89BE6356-DBD7-4F31-BE34-F2912E611171}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -66,7 +66,7 @@
       <HintPath>packages\DotNetZip.1.13.8\lib\net40\DotNetZip.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader.ModHandler">
-      <HintPath>L:\Program Files (x86)\Steam\steamapps\common\BloonsTD6\MelonLoader\MelonLoader.ModHandler.dll</HintPath>
+      <HintPath>F:\Program Files (x86)\Steam\steamapps\common\Bloons Adventure Time TD\MelonLoader\MelonLoader.ModHandler.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.WindowsAPICodePack-Core.1.1.0.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -217,6 +217,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\nexusmods logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BTD6 Mod Manager.Lib\BTD6 Mod Manager.Lib.csproj">
+      <Project>{89be6356-dbd7-4f31-be34-f2912e611171}</Project>
+      <Name>BTD6 Mod Manager.Lib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
