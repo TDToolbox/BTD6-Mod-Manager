@@ -4,8 +4,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using BTD6_Mod_Manager.Classes;
-using BTD_Backend;
-using BTD_Backend.Game;
+using BTD6_Mod_Manager.Lib;
+using BTD6_Mod_Manager.Lib.Game;
 using System.Resources;
 using System.Windows.Threading;
 using System.Windows.Media;
@@ -14,6 +14,7 @@ using System.Reflection;
 using MelonLoader;
 using System.Linq;
 using System.Threading;
+using BTD6_Mod_Manager.Lib.MelonMods;
 
 namespace BTD6_Mod_Manager.UserControls
 {
@@ -67,7 +68,7 @@ namespace BTD6_Mod_Manager.UserControls
                         if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
                             continue;
 
-                        if (item == ".dll" && !BTD_Backend.NKHook6.MelonModHandling.IsValidMelonMod(mod.FullName))
+                        if (item == ".dll" && !MelonMod_Handler.IsValidMelonMod(mod.FullName))
                             continue;
 
                         AddItemToModsList(mod);
@@ -82,7 +83,7 @@ namespace BTD6_Mod_Manager.UserControls
                 {
                     if ((!File.Exists(mod) && !File.Exists(mod + disabledKey)) || String.IsNullOrEmpty(mod))
                     {
-                        Log.Output("Attempted to add a mod that doesnt exist to the Selected Mods list");
+                        Logger.Log("Attempted to add a mod that doesnt exist to the Selected Mods list");
                         continue;
                     }
 
@@ -215,7 +216,7 @@ namespace BTD6_Mod_Manager.UserControls
             {
                 if (TempSettings.Instance.GetModsDir(item) == path && SessionData.CurrentGame != item)
                 {
-                    Log.Output("Error! Can't use this path. The location you chose is being used by " + item.ToString()
+                    Logger.Log("Error! Can't use this path. The location you chose is being used by " + item.ToString()
                         + ". Please use another path for your mods folder");
                     return;
                 }
@@ -264,7 +265,7 @@ namespace BTD6_Mod_Manager.UserControls
                 SetModsDir();
                 if (String.IsNullOrEmpty(TempSettings.Instance.GetModsDir(SessionData.CurrentGame)))
                 {
-                    Log.Output("Can't add mods. You need to set a mods directory.");
+                    Logger.Log("Can't add mods. You need to set a mods directory.");
                     return;
                 }
             }
@@ -295,9 +296,9 @@ namespace BTD6_Mod_Manager.UserControls
             foreach (string mod in mods)
             {
                 FileInfo f = new FileInfo(mod);
-                Log.Output("Added " + f.Name);
+                Logger.Log("Added " + f.Name);
 
-                string dest = BTD_Backend.IO.FileIO.IncrementFileName(modFolder + "\\" + f.Name);
+                string dest = Lib.IO.FileIO.IncrementFileName(modFolder + "\\" + f.Name);
                 File.Copy(mod, dest);
                 f = new FileInfo(dest);
                 

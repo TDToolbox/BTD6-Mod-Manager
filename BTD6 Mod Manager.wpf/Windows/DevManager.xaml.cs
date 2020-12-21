@@ -1,4 +1,4 @@
-﻿using BTD_Backend;
+﻿using BTD6_Mod_Manager.Lib;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -46,7 +46,7 @@ namespace BTD6_Mod_Manager.Windows
                 "to your Mods folder. This can be useful because you won't need to constantly re-import " +
                 "your mod during development";
 
-            Log.Output(msg);
+            Logger.Log(msg);
         }
 
         private void CheckState_Changed(object sender, RoutedEventArgs e)
@@ -76,7 +76,7 @@ namespace BTD6_Mod_Manager.Windows
 
         private void AutoUpdate_Browse_Button_Click(object sender, RoutedEventArgs e)
         {
-            var path = BTD_Backend.IO.FileIO.BrowseForFile("Select the mod you want to check for updates", "", "", "");
+            var path = Lib.IO.FileIO.BrowseForFile("Select the mod you want to check for updates", "", "", "");
             if (string.IsNullOrEmpty(path))
                 return;
 
@@ -87,7 +87,7 @@ namespace BTD6_Mod_Manager.Windows
         {
             if (autoUpdateMod && AutoUpdate_TextBox.Text.Length == 0)
             {
-                Log.Output("Error! You enabled Auto Updating for this mod, but you haven't selected the path to the " +
+                Logger.Log("Error! You enabled Auto Updating for this mod, but you haven't selected the path to the " +
                     "file you want to check for changes. You need to chose the location of your mod, the one you're developing.");
                 return;
             }
@@ -97,14 +97,14 @@ namespace BTD6_Mod_Manager.Windows
         {
             if (autoUpdateMod && AutoUpdate_TextBox.Text.Length == 0)
             {
-                Log.Output("Error! You enabled Auto Updating for this mod, but you haven't selected the path to the " +
+                Logger.Log("Error! You enabled Auto Updating for this mod, but you haven't selected the path to the " +
                     "file you want to check for changes. You need to chose the location of your mod, the one you're developing.");
                 return;
             }
 
             if (string.IsNullOrEmpty(OriginalModPath))
             {
-                Log.Output("Error! Can't check mod for updates because the original mod wasn't set. This is a developer error," +
+                Logger.Log("Error! Can't check mod for updates because the original mod wasn't set. This is a developer error," +
                     " contact us if you are seeing this message.");
                 return;
             }
@@ -116,7 +116,7 @@ namespace BTD6_Mod_Manager.Windows
                 {
                     if (!File.Exists(CheckUpdateModPath))
                     {
-                        Log.Output("Error! File to check for changes doesn't exist!");
+                        Logger.Log("Error! File to check for changes doesn't exist!");
                         break;
                     }
                     if (!isFileChanged(CheckUpdateModPath))
@@ -126,10 +126,10 @@ namespace BTD6_Mod_Manager.Windows
                     }
 
                     var f = new FileInfo(OriginalModPath);
-                    Log.Output("A change was detected in the mod \"" + f.Name + "\". Updating the stored version of this mod to the latest version...");
+                    Logger.Log("A change was detected in the mod \"" + f.Name + "\". Updating the stored version of this mod to the latest version...");
                     File.Copy(CheckUpdateModPath, OriginalModPath, true);
 
-                    Log.Output("Finished updating \"" + f.Name + "\"");
+                    Logger.Log("Finished updating \"" + f.Name + "\"");
                 }
             });
 

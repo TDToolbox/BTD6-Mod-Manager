@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BTD_Backend;
+﻿using BTD6_Mod_Manager.Lib;
 
 namespace BTD6_Mod_Manager.Classes
 {
@@ -13,7 +8,7 @@ namespace BTD6_Mod_Manager.Classes
         {
             if (MainWindow.doingWork)
             {
-                Log.Output("Cant do that! Doing something else.\nCurrent Process: " + errorMessage, OutputType.Both);
+                Logger.Log("Cant do that! Doing something else.\nCurrent Process: " + errorMessage, OutputType.Both);
                 return true;
             }
             else

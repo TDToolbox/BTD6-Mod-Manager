@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BTD6_Mod_Manager.Lib.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,9 +7,9 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Windows;
 
-namespace BTD6_Mod_Manager.Lib.Web
+namespace BTD6_Mod_Manager.Lib.Updaters
 {
-    public class UpdateHandler
+    public class ModManager_Updater
     {
         internal static readonly string defaultGitURL = "https://api.github.com/repos/TDToolbox/BTD6-Mod-Manager/releases";
 
@@ -16,12 +17,12 @@ namespace BTD6_Mod_Manager.Lib.Web
         public GithubReleaseConfig LatestReleaseInfo { get; set; }
 
 
-        public UpdateHandler()
+        public ModManager_Updater()
         {
             GitReleasesURL = defaultGitURL;
         }
 
-        public UpdateHandler(string gitReleaseURL)
+        public ModManager_Updater(string gitReleaseURL)
         {
             GitReleasesURL = (String.IsNullOrEmpty(gitReleaseURL)) ? defaultGitURL : gitReleaseURL;
         }
@@ -51,7 +52,6 @@ namespace BTD6_Mod_Manager.Lib.Web
                 return;
             }
 
-            Logger.Log("Downloading latest version...");
             DownloadUpdates();
             ExtractUpdater();
 
@@ -86,7 +86,7 @@ namespace BTD6_Mod_Manager.Lib.Web
         {
             LatestReleaseInfo = githubReleaseConfigs[0];
             latestGitVersion = LatestReleaseInfo.TagName;
-            currentVersion = GetCurrentVersion();//CurrentVersion.FileVersion;
+            currentVersion = GetCurrentVersion();
 
             CleanVersionTexts(latestGitVersion, currentVersion, out latestGitVersion, out currentVersion);
         }

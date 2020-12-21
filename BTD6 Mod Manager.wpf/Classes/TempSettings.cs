@@ -1,5 +1,5 @@
-﻿using BTD_Backend;
-using BTD_Backend.Game;
+﻿using BTD6_Mod_Manager.Lib;
+using BTD6_Mod_Manager.Lib.Game;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -56,7 +56,7 @@ namespace BTD6_Mod_Manager.Classes
             string json = File.ReadAllText(MainSettingsDir + "\\" + settingsFileName);
             if (!Guard.IsJsonValid(json) || json.Length <= 0)
             {
-                Log.Output("Settings file has invalid json, generating a new settings file.");
+                Logger.Log("Settings file has invalid json, generating a new settings file.");
                 CreateNewSettings();
                 return this;
             }
@@ -83,7 +83,7 @@ namespace BTD6_Mod_Manager.Classes
             }
             catch (Exception e)
             {
-                Log.Output(e.Message, OutputType.Both);
+                Logger.Log(e.Message, OutputType.Both);
             }
         }
 

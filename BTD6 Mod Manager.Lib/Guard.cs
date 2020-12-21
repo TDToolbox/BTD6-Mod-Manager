@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace BTD6_Mod_Manager.Lib
 {
@@ -29,6 +30,30 @@ namespace BTD6_Mod_Manager.Lib
             {
                 throw new Exception(message);
             }
+        }
+
+
+        /// <summary>
+        /// Check if FileInfo file contains valid json
+        /// </summary>
+        /// <param name="file">FileInfo to check</param>
+        /// <returns>Whether or not FileInfo file contains valid json</returns>
+        public static bool IsJsonValid(FileInfo file) => IsJsonValid(File.ReadAllText(file.FullName));
+
+        /// <summary>
+        /// Check if text is valid json
+        /// </summary>
+        /// <param name="text">Text to check</param>
+        /// <returns>Whether or not text is valid json</returns>
+        public static bool IsJsonValid(string text)
+        {
+            try
+            {
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                dynamic result = serializer.DeserializeObject(text);
+                return true;
+            }
+            catch { return false; }
         }
     }
 }

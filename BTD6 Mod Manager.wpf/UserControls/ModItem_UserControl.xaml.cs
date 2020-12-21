@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using BTD_Backend;
+using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.UserControls;
 using BTD6_Mod_Manager.Windows;
@@ -36,7 +36,7 @@ namespace BTD6_Mod_Manager
             {
                 if (!TempSettings.Instance.LoadedFirstMod)
                 {
-                    Log.Output("Congrats! You selected your first mod! When you're ready, press the green \"Launch\" button" +
+                    Logger.Log("Congrats! You selected your first mod! When you're ready, press the green \"Launch\" button" +
                         " at the top of the program to launch and inject your mods!", OutputType.Both);
                     TempSettings.Instance.LoadedFirstMod = true;
                     TempSettings.Instance.SaveSettings();

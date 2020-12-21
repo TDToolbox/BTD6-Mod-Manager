@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BTD6_Mod_Manager.Lib.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,24 +7,30 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Windows;
 
-namespace BTD6_Mod_Manager.Lib.Web
+namespace BTD6_Mod_Manager.Lib.Updaters
 {
-    public class UpdateHandler
+    class MelonLoader_Updater
     {
-        internal static readonly string defaultGitURL = "https://api.github.com/repos/TDToolbox/BTD6-Mod-Manager/releases";
+        internal static readonly string defaultGitURL = "https://api.github.com/repos/HerpDerpinstine/MelonLoader/releases";
 
         public string GitReleasesURL { get; set; } = "";
+        public string MelonHandlerDllPath { get; set; }
+        public string DownloadDir { get; set; }
         public GithubReleaseConfig LatestReleaseInfo { get; set; }
 
 
-        public UpdateHandler()
+        public MelonLoader_Updater(string downloadDir, string melonHandlerDllPath)
         {
             GitReleasesURL = defaultGitURL;
+            DownloadDir = downloadDir;
+            MelonHandlerDllPath = melonHandlerDllPath;
         }
 
-        public UpdateHandler(string gitReleaseURL)
+        public MelonLoader_Updater(string gitReleaseURL, string downloadDir, string melonHandlerDllPath)
         {
             GitReleasesURL = (String.IsNullOrEmpty(gitReleaseURL)) ? defaultGitURL : gitReleaseURL;
+            DownloadDir = downloadDir;
+            MelonHandlerDllPath = melonHandlerDllPath;
         }
 
 
@@ -37,27 +44,33 @@ namespace BTD6_Mod_Manager.Lib.Web
             if (releaseConfig is null)
                 return;
 
-            if (!IsUpdate(releaseConfig))
+            bool isUpdate = IsUpdate(releaseConfig);
+            if (!File.Exists(MelonHandlerDllPath))
+                isUpdate = true;
+           
+            if (!isUpdate)
             {
-                Logger.Log("BTD6 Mod Manager is up to date!");
+                Logger.Log("MelonLoader is up to date!");
                 return;
             }
 
-            Logger.Log("An update is available for BTD6 Mod Manager!");
-            bool installUpdates = AskInstallUpdates();
-            if (!installUpdates)
+            if (isUpdate && File.Exists(MelonHandlerDllPath))
             {
-                Logger.Log("You chose not to install updates.");
-                return;
+                Logger.Log("An update is available for MelonLoader!");
+                bool installUpdates = AskInstallUpdates();
+                if (!installUpdates)
+                {
+                    Logger.Log("You chose not to install updates.");
+                    return;
+                }
             }
 
-            Logger.Log("Downloading latest version...");
             DownloadUpdates();
             ExtractUpdater();
-
-            Logger.Log("Closing BTD6 Mod Manager to finish update", OutputType.Both);
-            LaunchUpdater();
-            Environment.Exit(0);
+            if (File.Exists(MelonHandlerDllPath))
+                Logger.Log("Successfully installed MelonLoader", OutputType.Both);
+            else
+                Logger.Log("Failed to install MelonLoader. You will need to install it yourself", OutputType.Both);
         }
 
 
@@ -76,34 +89,34 @@ namespace BTD6_Mod_Manager.Lib.Web
 
         private bool IsUpdate(List<GithubReleaseConfig> githubReleaseConfigs)
         {
-            GetCurrentAndLatestVersion(githubReleaseConfigs, out string latestGitVersion, out string currentVersion);
+            LatestReleaseInfo = githubReleaseConfigs[0];
+            if (!File.Exists(MelonHandlerDllPath))
+                return true;
+
+            GetCurrentAndLatestVersion(out string latestGitVersion, out string currentVersion);
             var latest = VersionToInt(latestGitVersion);
             var current = VersionToInt(currentVersion);
             return latest > current;
         }
 
-        private void GetCurrentAndLatestVersion(List<GithubReleaseConfig> githubReleaseConfigs, out string latestGitVersion, out string currentVersion)
+        private void GetCurrentAndLatestVersion(out string latestGitVersion, out string currentVersion)
         {
-            LatestReleaseInfo = githubReleaseConfigs[0];
             latestGitVersion = LatestReleaseInfo.TagName;
-            currentVersion = GetCurrentVersion();//CurrentVersion.FileVersion;
-
+            currentVersion = GetCurrentVersion();
             CleanVersionTexts(latestGitVersion, currentVersion, out latestGitVersion, out currentVersion);
         }
 
         private string GetCurrentVersion()
         {
-            var assembly = Assembly.GetEntryAssembly();
-            FileVersionInfo currentVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            FileVersionInfo currentVersionInfo = FileVersionInfo.GetVersionInfo(MelonHandlerDllPath);
             return currentVersionInfo.FileVersion;
         }
 
         private void CleanVersionTexts(string latestGitVersion, string currentVersion, out string processedLatestVersion, out string processedCurrentVersion)
         {
             const string delimiter = ".";
-            processedLatestVersion = latestGitVersion.Replace(delimiter, "");
+            processedLatestVersion = latestGitVersion.Replace(delimiter, "").Replace("v", "");
             processedCurrentVersion = currentVersion.Replace(delimiter, "");
-
             bool areSameLength = (processedLatestVersion.Length == processedCurrentVersion.Length);
             if (areSameLength)
                 return;
@@ -129,7 +142,7 @@ namespace BTD6_Mod_Manager.Lib.Web
 
         private bool AskInstallUpdates()
         {
-            var result = MessageBox.Show("An update is available for BTD6 Mod Manager. Would you like to download the update?", "Download update?", MessageBoxButton.YesNo);
+            var result = MessageBox.Show("An update is available for MelonLoader. Would you like to download the update?", "Download update?", MessageBoxButton.YesNo);
             return (result == MessageBoxResult.Yes);
         }
 
@@ -139,18 +152,22 @@ namespace BTD6_Mod_Manager.Lib.Web
             foreach (string file in downloads)
             {
                 FileDownloader downloader = new FileDownloader();
-                downloader.DownloadFile(file, Environment.CurrentDirectory);
+                downloader.DownloadFile(file, DownloadDir);
             }
         }
 
         private List<string> GetDownloadURLs()
         {
-            int i = -1;
+            const int requiredIndex = 1;
             List<string> downloads = new List<string>();
-            foreach (var a in LatestReleaseInfo.Assets)
+            for (int i = -1; i < LatestReleaseInfo.Assets.Count; i++)
             {
-                Logger.Log("Downloading " + a.BrowserDownloadUrl.ToString());
-                downloads.Add(a.BrowserDownloadUrl.ToString());
+                if (i != requiredIndex)
+                    continue;
+
+                var asset = LatestReleaseInfo.Assets[i];
+                Logger.Log("Downloading " + asset.BrowserDownloadUrl.ToString());
+                downloads.Add(asset.BrowserDownloadUrl.ToString());
             }
 
             return downloads;
@@ -158,7 +175,7 @@ namespace BTD6_Mod_Manager.Lib.Web
 
         private void ExtractUpdater()
         {
-            var files = new DirectoryInfo(Environment.CurrentDirectory).GetFiles();
+            var files = new DirectoryInfo(DownloadDir).GetFiles();
             foreach (var file in files)
             {
                 string filename = file.Name;
@@ -169,17 +186,15 @@ namespace BTD6_Mod_Manager.Lib.Web
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        string destinationPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, entry.FullName));
-                        if (destinationPath.StartsWith(Environment.CurrentDirectory, StringComparison.Ordinal))
+                        string destinationPath = Path.GetFullPath(Path.Combine(DownloadDir, entry.FullName));
+                        if (destinationPath.StartsWith(DownloadDir, StringComparison.Ordinal))
                         {
-                            if (new FileInfo(destinationPath).Name != "Updater.exe")
+                            if (String.IsNullOrEmpty(entry.Name))
                                 continue;
 
-                            if (File.Exists(destinationPath))
-                                File.Delete(destinationPath);
-
-                            entry.ExtractToFile(destinationPath);
-                            Logger.Log($"Extracting file: {destinationPath}");
+                            var fileInfo = new FileInfo(destinationPath);
+                            fileInfo.Directory.Create();
+                            entry.ExtractToFile(destinationPath, true);
                         }
                     }
                 }
@@ -189,7 +204,7 @@ namespace BTD6_Mod_Manager.Lib.Web
 
         private void LaunchUpdater()
         {
-            var updaterPath = Environment.CurrentDirectory + "\\Updater.exe";
+            var updaterPath = DownloadDir + "\\Updater.exe";
             if (!File.Exists(updaterPath))
             {
                 Logger.Log("ERROR! Unable to find updater. You will need to close BTD6 Mod Manager" +

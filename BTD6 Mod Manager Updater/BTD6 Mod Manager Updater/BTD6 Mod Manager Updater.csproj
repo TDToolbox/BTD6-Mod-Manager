@@ -35,9 +35,6 @@
     <ApplicationIcon>Resources\wrench.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BTD Backend">
-      <HintPath>..\..\BTD6 Mod Manager.wpf\BTD Backend.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />

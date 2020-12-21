@@ -1,5 +1,6 @@
-﻿using BTD_Backend;
-using BTD_Backend.Game;
+﻿using BTD6_Mod_Manager.Lib;
+using BTD6_Mod_Manager.Lib.Game;
+using BTD6_Mod_Manager.Lib.Natives;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -33,7 +34,7 @@ namespace BTD6_Mod_Manager.Classes
             {
                 var gameInfo = GameInfo.GetGame(SessionData.CurrentGame);
 
-                if (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out var btd6Proc))
+                if (!Utility.IsProgramRunning(gameInfo.ProcName, out var btd6Proc))
                     Process.Start("steam://rungameid/" + gameInfo.SteamID);
             }
         }
@@ -60,12 +61,12 @@ namespace BTD6_Mod_Manager.Classes
             int injectWaitTime = 15000;
             var gameInfo = GameInfo.GetGame(SessionData.CurrentGame);
 
-            if (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
+            if (!Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
                 Process.Start("steam://rungameid/" + gameInfo.SteamID);
             else
                 injectWaitTime = 0;
 
-            while (!BTD_Backend.Natives.Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
+            while (!Utility.IsProgramRunning(gameInfo.ProcName, out btd6Proc))
                 Thread.Sleep(1000);
 
             return injectWaitTime;
@@ -102,20 +103,22 @@ namespace BTD6_Mod_Manager.Classes
         private void InjectMods(Process btd6Proc)
         {
             bool modsInjected = false;
-            Log.Output("Injecting mods...");
+            Logger.Log("Injecting mods...");
             foreach (var modPath in SessionData.LoadedMods)
             {
                 if (!File.Exists(modPath))
                 {
-                    Log.Output("The BTD6 mod  \"" + modPath + "\"  could not be found. Failed to inject it");
+                    Logger.Log("The BTD6 mod  \"" + modPath + "\"  could not be found. Failed to inject it");
                     continue;
                 }
-                BTD_Backend.Natives.Injector.InjectDll(modPath, btd6Proc);
+                Logger.Log("Error! Injector has been disabled. If you are seeing this message please contact devs", OutputType.Both);
+                return;
+                //BTD_Backend.Natives.Injector.InjectDll(modPath, btd6Proc);
                 modsInjected = true;
             }
 
             if (modsInjected)
-                Log.Output("Mods Injected...");
+                Logger.Log("Mods Injected...");
         }
     }
 }

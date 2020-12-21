@@ -1,29 +1,20 @@
-﻿using BTD_Backend;
-using BTD_Backend.Game;
-using BTD_Backend.Persistence;
-using BTD_Backend.Web;
-using BTD6_Mod_Manager.Classes;
+﻿using BTD6_Mod_Manager.Classes;
+using BTD6_Mod_Manager.Lib;
+using BTD6_Mod_Manager.Lib.Game;
+using BTD6_Mod_Manager.Lib.MelonMods;
+using BTD6_Mod_Manager.Lib.Natives;
+using BTD6_Mod_Manager.Lib.Persistance;
 using Ionic.Zip;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace BTD6_Mod_Manager
@@ -52,10 +43,9 @@ namespace BTD6_Mod_Manager
             }
 
             SessionData.CurrentGame = GameType.BTD6;
-            Log.MessageLogged += Log_MessageLogged;
-            Lib.Log.MessageLogged += Log_MessageLogged1; ;
+            Logger.MessageLogged += Log_MessageLogged;
 
-            Log.Output("Program initializing...");
+            Logger.Log("Program initializing...");
             Startup();
         }
 
@@ -79,7 +69,7 @@ namespace BTD6_Mod_Manager
 
         private void OnFinishedLoading()
         {
-            Log.Output("Welcome to BTD6 Mod Manager!");
+            Logger.Log("Welcome to BTD6 Mod Manager!");
             
             string tdloaderDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
             UserData.MainProgramExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe";
@@ -111,7 +101,7 @@ namespace BTD6_Mod_Manager
             {
                 while (true)
                 {
-                    if (BTD_Backend.Natives.Utility.IsProgramRunning(btd6File, out Process proc))
+                    if (Utility.IsProgramRunning(btd6File, out Process proc))
                     {
                         Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
                         {
@@ -143,7 +133,7 @@ namespace BTD6_Mod_Manager
         {
             string oldModsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader\\BTD6 Mods";
             
-            Log.Output("Path to BTD6 mods is outdated. Moving mods folder");
+            Logger.Log("Path to BTD6 mods is outdated. Moving mods folder");
 
             string btd6ExePath = SteamUtils.GetGameDir(SessionData.CurrentGame);
             string newModsDir = btd6ExePath + "\\Mods";
@@ -224,17 +214,6 @@ namespace BTD6_Mod_Manager
             BTD6_CrashHandler handler = new BTD6_CrashHandler();
             handler.EnableCrashLog();
 
-
-            /*UpdateHandler update = new UpdateHandler() //Removed updates due to causing issues
-            {
-                GitApiReleasesURL = "https://api.github.com/repos/TDToolbox/BTD6-Mod-Manager/releases",
-                ProjectExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe",
-                InstallDirectory = Environment.CurrentDirectory,
-                ProjectName = "BTD6 Mod Manager",
-                UpdatedZipName = "BTD6_Mod_Manager.zip",
-                UpdaterExeName = "Updater.exe"
-            };*/
-
             Lib.Web.UpdateHandler update = new Lib.Web.UpdateHandler();
 
             DeleteOldUpdaterFiles();
@@ -245,10 +224,7 @@ namespace BTD6_Mod_Manager
             {
                 update.HandleUpdates(); //Removed updates due to causing issues
                 string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
-                BTD_Backend.NKHook6.MelonModHandling.HandleUpdates(game.GameDir, gameD);
-                
-                /*string nkh = game.GameDir + "\\Mods\\NKHook6.dll"; //nkh is no longer used
-                BTD_Backend.NKHook6.NKHook6Handler.HandleUpdates(game.GameDir, nkh);*/
+                MelonMod_Handler.HandleUpdates(game.GameDir, gameD);
             });
         }
 
@@ -316,7 +292,7 @@ namespace BTD6_Mod_Manager
         {
             if (String.IsNullOrEmpty(TempSettings.Instance.GetModsDir(SessionData.CurrentGame)))
             {
-                Log.Output("Error! You can't launch yet because you need to set a mods directory for your selected game");
+                Logger.Log("Error! You can't launch yet because you need to set a mods directory for your selected game");
                 return;
             }
 
@@ -352,7 +328,7 @@ namespace BTD6_Mod_Manager
             Process.Start(dir);
         }
 
-        private void Log_MessageLogged(object sender, Log.LogEvents e)
+        private void Log_MessageLogged(object sender, Logger.LogEvents e)
         {
             if (e.Output == OutputType.MsgBox)
                 System.Windows.Forms.MessageBox.Show(e.Message);
@@ -372,7 +348,7 @@ namespace BTD6_Mod_Manager
                 blinkTimer.Start();
         }
 
-        private void Log_MessageLogged1(object sender, Lib.Log.LogEvents e)
+        private void Log_MessageLogged1(object sender, Lib.Logger.LogEvents e)
         {
             if (e.Output == Lib.OutputType.MsgBox)
                 System.Windows.Forms.MessageBox.Show(e.Message);
@@ -455,7 +431,7 @@ namespace BTD6_Mod_Manager
             if (File.Exists(Environment.CurrentDirectory + "\\README.txt"))
                 Process.Start(Environment.CurrentDirectory + "\\README.txt");
             else
-                Log.Output("If you are having issues with your mods, you can get help in our discord server! Click the Discord button to join!");
+                Logger.Log("If you are having issues with your mods, you can get help in our discord server! Click the Discord button to join!");
         }
         private void Window_Closed(object sender, EventArgs e)
         {

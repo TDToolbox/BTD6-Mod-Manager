@@ -40,7 +40,7 @@ namespace BTD6_Mod_Manager.Lib.Web
                     if (i < maxTries)
                         message += " Trying again...";
 
-                    Log.Output(message);
+                    Logger.Log(message);
                     lastExeption = e.Message;
                 }
             }

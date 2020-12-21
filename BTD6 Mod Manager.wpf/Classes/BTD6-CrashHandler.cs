@@ -1,6 +1,7 @@
-﻿using BTD_Backend;
-using BTD_Backend.Game;
-using BTD_Backend.Persistence;
+﻿using BTD6_Mod_Manager.Lib;
+using BTD6_Mod_Manager.Lib.Game;
+using BTD6_Mod_Manager.Lib.Natives;
+using BTD6_Mod_Manager.Lib.Persistance;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace BTD6_Mod_Manager.Classes
             BgThread.AddToQueue(() =>
             {
                 var checkForCrash_start = DateTime.Now;
-                while (BTD_Backend.Natives.Utility.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process btd6Proc))
+                while (Utility.IsProgramRunning(GameInfo.GetGame(GameType.BTD6).ProcName, out Process btd6Proc))
                     Thread.Sleep(100);
 
                 if (!Directory.Exists(crash_report_path))
@@ -38,7 +39,7 @@ namespace BTD6_Mod_Manager.Classes
                     var info = new DirectoryInfo(folder);
                     if (info.LastWriteTime > checkForCrash_start)
                     {
-                        Log.Output("BTD6 has crashed");
+                        Logger.Log("BTD6 has crashed");
                         var result = MessageBox.Show("BTD6 has crashed! Do you want to open the crash log?", "Open crash log?", MessageBoxButton.YesNo);
                         if (result == MessageBoxResult.Yes)
                             OpenCrashLog();
@@ -51,7 +52,7 @@ namespace BTD6_Mod_Manager.Classes
         {
             if (!File.Exists(btd6_bootlog_path))
             {
-                Log.Output("Error! BTD6 boot.config file not found!");
+                Logger.Log("Error! BTD6 boot.config file not found!");
                 return;
             }
 
@@ -73,7 +74,7 @@ namespace BTD6_Mod_Manager.Classes
         {
             if (!Directory.Exists(crash_report_path))
             {
-                Log.Output("Error! The crash folder doesn't exist!");
+                Logger.Log("Error! The crash folder doesn't exist!");
                 return;
             }
 

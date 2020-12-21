@@ -1,7 +1,7 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.Generic;
 using System.IO;
-using BTD_Backend;
+using BTD6_Mod_Manager.Lib;
 using System.Windows.Forms;
 
 namespace BTD6_Mod_Manager.Classes
@@ -63,13 +63,13 @@ namespace BTD6_Mod_Manager.Classes
             string[] split = source.Split('\\');
             string dirname = split[split.Length - 1];
 
-            Log.Output("Copying " + dirname + "...");
+            Logger.Log("Copying " + dirname + "...");
             foreach (string dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
                 Directory.CreateDirectory(dirPath.Replace(source, destination));
 
             foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
                 File.Copy(newPath, newPath.Replace(source, destination), true);
-            Log.Output("Copied " + dirname + "!");
+            Logger.Log("Copied " + dirname + "!");
 
             done = true;
         }
