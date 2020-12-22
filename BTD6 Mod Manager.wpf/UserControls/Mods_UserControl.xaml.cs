@@ -68,8 +68,9 @@ namespace BTD6_Mod_Manager.UserControls
                         if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
                             continue;
 
-                        if (item == ".dll" && !MelonMod_Handler.IsValidMelonMod(mod.FullName))
-                            continue;
+                        //Following code has been removed for now. Causes issues if MelonLoader.ModHandler is not included with Mod Manager
+                        /*if (item == ".dll" && !MelonMod_Handler.IsValidMelonMod(mod.FullName))
+                            continue;*/
 
                         AddItemToModsList(mod);
                     }
