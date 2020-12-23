@@ -225,19 +225,15 @@ namespace BTD6_Mod_Manager
 
         private void OpenSettingsDir_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(TempSettings.Instance.MainSettingsDir))
-            {
-                Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
-                TempSettings.Instance.SaveSettings();
-                //UserData.SaveUserData();
-            }
-
+            Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
+            TempSettings.Instance.SaveSettings();
             Process.Start(TempSettings.Instance.MainSettingsDir);
         }
 
         //startng herere ====================================================
         private void Settings_Button_Click(object sender, RoutedEventArgs e)
         {
+            Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
             string settingsPath = TempSettings.Instance.MainSettingsDir + "\\" + TempSettings.Instance.settingsFileName;
 
             if (!File.Exists(settingsPath))
