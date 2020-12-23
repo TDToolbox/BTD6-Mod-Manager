@@ -6,15 +6,9 @@ using System.Windows.Controls;
 using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Lib.Game;
-using System.Resources;
-using System.Windows.Threading;
-using System.Windows.Media;
-using System.Diagnostics;
-using System.Reflection;
-using MelonLoader;
 using System.Linq;
 using System.Threading;
-using BTD6_Mod_Manager.Lib.MelonMods;
+using System.Diagnostics;
 
 namespace BTD6_Mod_Manager.UserControls
 {
@@ -27,7 +21,7 @@ namespace BTD6_Mod_Manager.UserControls
         public static Mods_UserControl instance;
         public List<string> modPaths = new List<string>();
         public List<ModItem_UserControl> modItems = new List<ModItem_UserControl>();
-        List<string> fileExtensions = new List<string>() { ".dll", ".boo", ".wbp", ".jet", ".zip", ".rar", ".7z", ".btd6mod", ".chai" };
+        List<string> fileExtensions = new List<string>() { ".dll", ".jet", ".zip", ".rar", ".7z", ".btd6mod"};
 
         public Mods_UserControl()
         {
@@ -65,7 +59,7 @@ namespace BTD6_Mod_Manager.UserControls
                     foreach (var mod in mods)
                     {
                         string modName = mod.Name.Replace(disabledKey, "");
-                        if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod) || modName.ToLower().Contains("nkhook"))
+                        if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod))
                             continue;
 
                         //Following code has been removed for now. Causes issues if MelonLoader.ModHandler is not included with Mod Manager
@@ -169,18 +163,41 @@ namespace BTD6_Mod_Manager.UserControls
         public void AddItemToModsList(FileInfo modFile)
         {
             string modName = "";
+            bool isBtdApiMod = modFile.FullName.Contains(".btd6mod");
+            bool isLastUsedMod = TempSettings.Instance.LastUsedMods.Contains(modFile.FullName);
+            bool isDisabled = modFile.FullName.EndsWith(disabledKey);
 
-            if (!modFile.FullName.Contains(".btd6mod") && !
-                TempSettings.Instance.LastUsedMods.Contains(modFile.FullName) && 
-                !modFile.FullName.EndsWith(disabledKey))
+            if (!isBtdApiMod && !isLastUsedMod && !isDisabled)
             {
                 string newPath = modFile.FullName + disabledKey;
                 if (File.Exists(newPath))
                     File.Delete(newPath);
 
                 File.Move(modFile.FullName, newPath);
-                
                 modFile = new FileInfo(newPath);
+            }
+
+            if (isBtdApiMod && !TempSettings.Instance.ShownBtdApiInjectorMessage)
+            {
+                Logger.Log("One or more of your mods are BTD API mods. This means you need to use an injector to inject them into BTD6.", OutputType.Both);
+
+                string btd6ModsDir = Environment.CurrentDirectory + "\\Mods";
+                if (!File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll") && !File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll.disabled"))
+                {
+                    var result = MessageBox.Show("The Injector for BTD6 API mods was not found. It is required in order to use BTD6 API mods." +
+                        " Do you want to download it?", "Download BTD6 API Injector?", MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Process.Start("https://www.nexusmods.com/bloonstd6/mods/41?tab=description");
+                    }
+                    else
+                    {
+                        Logger.Log("You chose not to download the injector. You're BTD6 API mods won't work until you get it" +
+                            ". However, all other BTD6 mods will continue to work.", OutputType.Both);
+                    }
+                }
+                TempSettings.Instance.ShownBtdApiInjectorMessage = true;
             }
 
             modName = modFile.Name.Replace(disabledKey, "");
@@ -286,7 +303,7 @@ namespace BTD6_Mod_Manager.UserControls
             }
             allModTypes = allModTypes.TrimEnd(';');
 
-            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|boo files (*.boo)|wbp files (*.wbp)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6 Mods (*.btd6mod)|*.btd6mod|Chai files (*.chai)", "");
+            List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6API mods (*.btd6mod)|*.btd6mod|", "");
 
             if (mods == null || mods.Count == 0)
             {

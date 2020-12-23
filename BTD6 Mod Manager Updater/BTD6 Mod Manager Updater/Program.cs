@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace BTD6_Mod_Manager_Updater
 {
@@ -74,7 +75,7 @@ namespace BTD6_Mod_Manager_Updater
         {
             while (IsProgramRunning(windowMainTitle))
             {
-                var openWindowProcesses = System.Diagnostics.Process.GetProcesses()
+                var openWindowProcesses = Process.GetProcesses()
         .Where(p => p.MainWindowHandle != IntPtr.Zero && p.ProcessName != "explorer");
 
                 foreach (var a in openWindowProcesses)

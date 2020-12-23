@@ -29,23 +29,9 @@ namespace BTD6_Mod_Manager
         public static MainWindow instance;
         public MainWindow()
         {
-            if (Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\VisualStudio\14.0\VC\Runtimes") != null ||
-    Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeAdditional") != null) // basically checks for x64 vc redist
-            {
-                InitializeComponent();
-                instance = this;
-            }
-            else
-            {
-                MessageBox.Show("You do not have the x64 Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 installed. Clicking OK will bring you to the direct download link. Mods will not work without it.", "Error!");
-                Process.Start("https://aka.ms/vs/16/release/vc_redist.x64.exe");
-                Environment.Exit(0);
-            }
-
-            SessionData.CurrentGame = GameType.BTD6;
+            InitializeComponent();
             Logger.MessageLogged += Log_MessageLogged;
-
-            Logger.Log("Program initializing...");
+            SessionData.CurrentGame = GameType.BTD6;
             Startup();
         }
 
@@ -57,18 +43,13 @@ namespace BTD6_Mod_Manager
 
             if (TempSettings.Instance.BTD6_ModsDir.Contains(TempSettings.Instance.MainSettingsDir))
                 MoveModsToNewFolder();
-
-            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            string[] split = version.Split('.');
-            
-            if (split.Length - 1 > 2)
-                version = version.Remove(version.Length - 2, 2);
-
-            Version_TextBlock.Text = "Version " + version;
         }
 
         private void OnFinishedLoading()
         {
+            SetVersionTextBlock();
+            
+            Logger.Log("Program initializing...");
             Logger.Log("Welcome to BTD6 Mod Manager!");
             
             string tdloaderDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
@@ -92,41 +73,17 @@ namespace BTD6_Mod_Manager
                 TempSettings.Instance.IsNewUser = false;
                 TempSettings.Instance.SaveSettings();
             }
+        }
 
-            var game = GameInfo.GetGame(SessionData.CurrentGame);
-            string btd6ExePath = game.GameDir + "\\" + game.EXEName;
-            FileInfo btd6File = new FileInfo(btd6ExePath);
+        private void SetVersionTextBlock()
+        {
+            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string[] split = version.Split('.');
 
-            BgThread.AddToQueue(() =>
-            {
-                while (true)
-                {
-                    if (Utility.IsProgramRunning(btd6File, out Process proc))
-                    {
-                        Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
-                        {
-                            foreach (var item in TempSettings.Instance.LastUsedMods)
-                            {
-                                if (item.ToLower().EndsWith(".btd6mod"))
-                                {
-                                    if (Launch_Button.Content != "Inject")
-                                        Launch_Button.Content = "Inject";
-                                    break;
-                                }
-                            }
-                        }));
-                    }
-                    else
-                    {
-                        Launch_Button.Dispatcher.BeginInvoke((Action)(() =>
-                        {
-                            if (Launch_Button.Content != "Launch")
-                                Launch_Button.Content = "Launch";
-                        }));
-                    }
-                    Thread.Sleep(1000);
-                }
-            });
+            if (split.Length - 1 > 2)
+                version = version.Remove(version.Length - 2, 2);
+
+            Version_TextBlock.Text = "Version " + version;
         }
 
         private void MoveModsToNewFolder()
@@ -342,26 +299,6 @@ namespace BTD6_Mod_Manager
                 
                 if (e.Output == OutputType.Both)
                     System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ",""));
-            }
-
-            if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)
-                blinkTimer.Start();
-        }
-
-        private void Log_MessageLogged1(object sender, Lib.Logger.LogEvents e)
-        {
-            if (e.Output == Lib.OutputType.MsgBox)
-                System.Windows.Forms.MessageBox.Show(e.Message);
-            else
-            {
-                OutputLog.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    OutputLog.AppendText(e.Message);
-                    OutputLog.ScrollToEnd();
-                }));
-
-                if (e.Output == Lib.OutputType.Both)
-                    System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ", ""));
             }
 
             if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)

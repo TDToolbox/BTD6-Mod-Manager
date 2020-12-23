@@ -47,7 +47,7 @@ namespace BTD6_Mod_Manager.Lib.Updaters
             bool isUpdate = IsUpdate(releaseConfig);
             if (!File.Exists(MelonHandlerDllPath))
                 isUpdate = true;
-           
+            
             if (!isUpdate)
             {
                 Logger.Log("MelonLoader is up to date!");
@@ -64,9 +64,12 @@ namespace BTD6_Mod_Manager.Lib.Updaters
                     return;
                 }
             }
+            else if (isUpdate && !File.Exists(MelonHandlerDllPath))
+                Logger.Log("MelonLoader is not installed. Installing MelonLoader");
 
             DownloadUpdates();
             ExtractUpdater();
+
             if (File.Exists(MelonHandlerDllPath))
                 Logger.Log("Successfully installed MelonLoader", OutputType.Both);
             else
@@ -154,6 +157,7 @@ namespace BTD6_Mod_Manager.Lib.Updaters
                 FileDownloader downloader = new FileDownloader();
                 downloader.DownloadFile(file, DownloadDir);
             }
+            
         }
 
         private List<string> GetDownloadURLs()
@@ -175,11 +179,11 @@ namespace BTD6_Mod_Manager.Lib.Updaters
 
         private void ExtractUpdater()
         {
-            var files = new DirectoryInfo(DownloadDir).GetFiles();
+            var files = new DirectoryInfo(DownloadDir).GetFiles("*.zip");
             foreach (var file in files)
             {
                 string filename = file.Name;
-                if (!filename.EndsWith(".zip") && !filename.EndsWith(".rar") && !filename.EndsWith(".7z"))
+                if (!filename.ToLower().Contains("melonloader"))
                     continue;
 
                 using (ZipArchive archive = ZipFile.OpenRead(file.FullName))
@@ -199,20 +203,6 @@ namespace BTD6_Mod_Manager.Lib.Updaters
                     }
                 }
             }
-        }
-
-
-        private void LaunchUpdater()
-        {
-            var updaterPath = DownloadDir + "\\Updater.exe";
-            if (!File.Exists(updaterPath))
-            {
-                Logger.Log("ERROR! Unable to find updater. You will need to close BTD6 Mod Manager" +
-                    $" and manually extract the updater from:  {updaterPath}");
-                return;
-            }
-
-            Process.Start(updaterPath, "launched_from_BTD6 Mod Manager");
         }
     }
 }

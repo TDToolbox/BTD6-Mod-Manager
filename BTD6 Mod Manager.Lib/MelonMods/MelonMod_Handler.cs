@@ -16,33 +16,8 @@ namespace BTD6_Mod_Manager.Lib.MelonMods
         {
             var updater = new MelonLoader_Updater(downloadDir, melonModHandler_path);
             updater.HandleUpdates();
-            /*UpdateHandler update = new UpdateHandler()
-            {
-                GitApiReleasesURL = melonLoaderApiURL,
-                ProjectExePath = melonModHandler_path,
-                InstallDirectory = downloadDir,
-                ProjectName = "MelonLoader",
-                UpdatedZipName = "MelonLoader.zip",
-                GitFileIndexsToDownload = new List<int>() { 1 }
-            };
-            update.DeleteUpdater();
-            update.HandleUpdates(false, false, true);*/
 
         }
-
-        /*private string GetGitText()
-        {
-            WebReader reader = new WebReader();
-            return reader.ReadText_FromURL(melonLoaderApiURL);
-        }
-
-        private bool IsUpdate(string melonModHandler_path, string aquiredGitText)
-        {
-            if (!File.Exists(melonModHandler_path))
-                return true;
-
-            return UpdateHandler.IsUpdate(melonModHandler_path, "MelonLoader", aquiredGitText);
-        }*/
 
         /// <summary>
         /// Get the Assembly of the mod that is calling NKHook6 code

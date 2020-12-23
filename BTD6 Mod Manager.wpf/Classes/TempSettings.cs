@@ -35,6 +35,7 @@ namespace BTD6_Mod_Manager.Classes
         public bool IsNewUser { get; set; } = true;
         public bool ConsoleFlash { get; set; } = true;
         public bool LoadedFirstMod { get; set; } = false;
+        public bool ShownBtdApiInjectorMessage { get; set; } = false;
         public GameType LastGame { get; set; } = GameType.BTD6;
         public List<string> LastUsedMods { get; set; } = new List<string>();
         public string BTD6_ModsDir { get; set; }
