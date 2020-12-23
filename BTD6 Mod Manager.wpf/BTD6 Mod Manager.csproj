@@ -40,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -50,7 +51,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\wrench.ico</ApplicationIcon>
@@ -105,10 +106,12 @@
     </ApplicationDefinition>
     <Compile Include="Classes\BTD6-CrashHandler.cs" />
     <Compile Include="Classes\FileIO.cs" />
-    <Compile Include="Classes\Launcher.cs" />
-    <Compile Include="Classes\SessionData.cs" />
+    <Compile Include="Launcher.cs" />
     <Compile Include="Classes\TempGuard.cs" />
     <Compile Include="Classes\TempSettings.cs" />
+    <Compile Include="IO\FileIO.cs" />
+    <Compile Include="Persistance\Settings.cs" />
+    <Compile Include="SessionData.cs" />
     <Compile Include="UserControls\ModItem_UserControl.xaml.cs">
       <DependentUpon>ModItem_UserControl.xaml</DependentUpon>
     </Compile>

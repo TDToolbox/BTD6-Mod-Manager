@@ -35,8 +35,7 @@
                                 </ItemsPanelTemplate>
                             </Menu.ItemsPanel>
 
-                            <MenuItem x:Name="Settings_Button" Header="Settings" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="Settings_Button_Click"/>
-                            <MenuItem x:Name="OpenSettingsDir_Button" Header="Open Settings Dir" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenSettingsDir_Button_Click"/>
+                            <MenuItem x:Name="BrowseModDir_Button" Header="Set Mods Dir" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="BrowseModDir_Button_Click"/>
                         </Menu>
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>
@@ -50,6 +49,8 @@
                                 </ItemsPanelTemplate>
                             </Menu.ItemsPanel>
 
+                            <MenuItem x:Name="Settings_Button" Header="Settings" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="Settings_Button_Click"/>
+                            <MenuItem x:Name="OpenSettingsDir_Button" Header="Open Settings Dir" FontSize="16"  Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenSettingsDir_Button_Click"/>
                             <MenuItem x:Name="OpenBTD6_ModDir_Button" Header="BTD6 Mods Directory" FontSize="16" Foreground="White" Background="#FF191919" BorderThickness="0" Click="OpenBTD6_ModDir_Button_Click"/>
                         </Menu>
                     </xctk:DropDownButton.DropDownContent>

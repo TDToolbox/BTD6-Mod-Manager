@@ -8,13 +8,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
-namespace BTD6_Mod_Manager.Classes
+namespace BTD6_Mod_Manager
 {
     class Launcher
     {
         public static void Launch()
         {
-            var gameInfo = GameInfo.GetGame(SessionData.CurrentGame);
+            var gameInfo = GameInfo.GetGame(SessionData.currentGame);
 
             if (!Utility.IsProgramRunning(gameInfo.ProcName, out var btd6Proc))
                 Process.Start("steam://rungameid/" + gameInfo.SteamID);

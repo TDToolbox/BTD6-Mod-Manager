@@ -58,6 +58,7 @@ namespace BTD6_Mod_Manager.Classes
             else
                 return null;
         }
+
         public static void CopyDirsAndContents(string source, string destination)
         {
             string[] split = source.Split('\\');

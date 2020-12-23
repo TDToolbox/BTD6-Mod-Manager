@@ -47,7 +47,7 @@ namespace BTD6_Mod_Manager.Lib.Updaters
             bool isUpdate = IsUpdate(releaseConfig);
             if (!File.Exists(MelonHandlerDllPath))
                 isUpdate = true;
-            
+
             if (!isUpdate)
             {
                 Logger.Log("MelonLoader is up to date!");
@@ -69,7 +69,7 @@ namespace BTD6_Mod_Manager.Lib.Updaters
 
             DownloadUpdates();
             ExtractUpdater();
-
+            
             if (File.Exists(MelonHandlerDllPath))
                 Logger.Log("Successfully installed MelonLoader", OutputType.Both);
             else

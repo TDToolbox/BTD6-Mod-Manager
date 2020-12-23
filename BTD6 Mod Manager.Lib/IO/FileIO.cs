@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Diagnostics;
 using System.IO;
 
@@ -29,6 +30,17 @@ namespace BTD6_Mod_Manager.Lib.IO
             fileDiag.ShowDialog();
             return fileDiag.FileName;
         }
+
+        public static string BrowseForDirectory(string title, string startDir)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            dialog.Title = title;
+            dialog.Multiselect = false;
+            dialog.InitialDirectory = startDir;
+            return (dialog.ShowDialog() == CommonFileDialogResult.Ok) ? dialog.FileName : string.Empty;
+        }
+
 
         /// <summary>
         /// Copy a directory and all of its contents, while preserving file structure

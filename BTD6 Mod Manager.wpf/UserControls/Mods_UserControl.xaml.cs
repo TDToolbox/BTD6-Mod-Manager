@@ -9,6 +9,7 @@ using BTD6_Mod_Manager.Lib.Game;
 using System.Linq;
 using System.Threading;
 using System.Diagnostics;
+using BTD6_Mod_Manager.Persistance;
 
 namespace BTD6_Mod_Manager.UserControls
 {
@@ -32,7 +33,7 @@ namespace BTD6_Mod_Manager.UserControls
 
         private void Mods_UserControl_RepopulateMods(object sender, ModUcEventArgs e)
         {
-            PopulateMods(SessionData.CurrentGame);
+            PopulateMods(SessionData.currentGame);
         }
 
         public void PopulateMods(GameType game)
@@ -40,17 +41,12 @@ namespace BTD6_Mod_Manager.UserControls
             //invoking so this can happen on thread
             this.Dispatcher.BeginInvoke((Action)(() =>
             {
-                string modsDir = TempSettings.Instance.GetModsDir(game);
-                if (String.IsNullOrEmpty(modsDir) || !Directory.Exists(modsDir))
-                    return;
-
-            
                 Mods_ListBox.Items.Clear();
                 SelectedMods_ListBox.Items.Clear();
                 modPaths = new List<string>();
                 modItems = new List<ModItem_UserControl>();
 
-                var mods = new DirectoryInfo(modsDir).GetFiles("*.*");
+                var mods = new DirectoryInfo(SessionData.ModsDir).GetFiles("*.*");
 
 
 
@@ -62,19 +58,15 @@ namespace BTD6_Mod_Manager.UserControls
                         if (!modName.EndsWith(item) || Mods_ListBox.Items.Contains(mod))
                             continue;
 
-                        //Following code has been removed for now. Causes issues if MelonLoader.ModHandler is not included with Mod Manager
-                        /*if (item == ".dll" && !MelonMod_Handler.IsValidMelonMod(mod.FullName))
-                            continue;*/
-
                         AddItemToModsList(mod);
                     }
                 }
 
-                if (TempSettings.Instance.LastUsedMods == null)
+                if (Settings.LoadedSettings.LastUsedMods == null)
                     return;
 
                 List<string> TempList = new List<string>();
-                foreach (var mod in TempSettings.Instance.LastUsedMods)
+                foreach (var mod in Settings.LoadedSettings.LastUsedMods)
                 {
                     if ((!File.Exists(mod) && !File.Exists(mod + disabledKey)) || String.IsNullOrEmpty(mod))
                     {
@@ -92,11 +84,11 @@ namespace BTD6_Mod_Manager.UserControls
                     AddToSelectedModLB(modName);
                 }
 
-                if (TempList.Count != TempSettings.Instance.LastUsedMods.Count)
+                if (TempList.Count != Settings.LoadedSettings.LastUsedMods.Count)
                 {
-                    TempSettings.Instance.LastUsedMods = TempList;
-                    SessionData.LoadedMods = TempList;
-                    TempSettings.Instance.SaveSettings();
+                    Settings.LoadedSettings.LastUsedMods = TempList;
+                    SessionData.loadedMods = TempList;
+                    Settings.LoadedSettings.Save();
                 }
 
                 SelectedMods_ListBox.SelectedIndex = 0;
@@ -111,8 +103,8 @@ namespace BTD6_Mod_Manager.UserControls
             SelectedMods_ListBox.Items.Remove(modFile.Name);
             SelectedMods_ListBox.SelectedIndex = SelectedMods_ListBox.Items.Count - 1;
 
-            if (TempSettings.Instance.LastUsedMods.Contains(modFile.FullName))
-                TempSettings.Instance.LastUsedMods.Remove(modFile.FullName);
+            if (Settings.LoadedSettings.LastUsedMods.Contains(modFile.FullName))
+                Settings.LoadedSettings.LastUsedMods.Remove(modFile.FullName);
 
             if (!modFile.FullName.Contains(".btd6mod") && !modFile.FullName.EndsWith(disabledKey))
             {
@@ -141,10 +133,10 @@ namespace BTD6_Mod_Manager.UserControls
             }
 
             modPaths.Add(f.FullName);
-            if (!TempSettings.Instance.LastUsedMods.Contains(f.FullName))
+            if (!Settings.LoadedSettings.LastUsedMods.Contains(f.FullName))
             {
-                TempSettings.Instance.LastUsedMods.Add(f.FullName);
-                TempSettings.Instance.SaveSettings();
+                Settings.LoadedSettings.LastUsedMods.Add(f.FullName);
+                Settings.LoadedSettings.Save();
             }
 
             SelectedMods_ListBox.Items.Add(f.Name);
@@ -164,7 +156,7 @@ namespace BTD6_Mod_Manager.UserControls
         {
             string modName = "";
             bool isBtdApiMod = modFile.FullName.Contains(".btd6mod");
-            bool isLastUsedMod = TempSettings.Instance.LastUsedMods.Contains(modFile.FullName);
+            bool isLastUsedMod = Settings.LoadedSettings.LastUsedMods.Contains(modFile.FullName);
             bool isDisabled = modFile.FullName.EndsWith(disabledKey);
 
             if (!isBtdApiMod && !isLastUsedMod && !isDisabled)
@@ -177,11 +169,11 @@ namespace BTD6_Mod_Manager.UserControls
                 modFile = new FileInfo(newPath);
             }
 
-            if (isBtdApiMod && !TempSettings.Instance.ShownBtdApiInjectorMessage)
+            if (isBtdApiMod && !Settings.LoadedSettings.ShownBtdApiInjectorMessage)
             {
                 Logger.Log("One or more of your mods are BTD API mods. This means you need to use an injector to inject them into BTD6.", OutputType.Both);
 
-                string btd6ModsDir = Environment.CurrentDirectory + "\\Mods";
+                string btd6ModsDir = SessionData.ModsDir;
                 if (!File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll") && !File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll.disabled"))
                 {
                     var result = MessageBox.Show("The Injector for BTD6 API mods was not found. It is required in order to use BTD6 API mods." +
@@ -197,7 +189,7 @@ namespace BTD6_Mod_Manager.UserControls
                             ". However, all other BTD6 mods will continue to work.", OutputType.Both);
                     }
                 }
-                TempSettings.Instance.ShownBtdApiInjectorMessage = true;
+                Settings.LoadedSettings.ShownBtdApiInjectorMessage = true;
             }
 
             modName = modFile.Name.Replace(disabledKey, "");
@@ -219,52 +211,26 @@ namespace BTD6_Mod_Manager.UserControls
             modItems.Add(item);
         }
 
-        public void SetModsDir()
-        {
-            if (SessionData.CurrentGame == GameType.None)
-                return;
-
-            string path = FileIO.BrowseForDirectory("Choose a directory for your mods", Environment.CurrentDirectory);
-
-            if (String.IsNullOrEmpty(path))
-                return;
-
-            var gameTypeList = new List<GameType>() { GameType.BTD6, GameType.BTD5, GameType.BTDB, GameType.BMC, GameType.BTDAT, GameType.NKArchive };
-            foreach (var item in gameTypeList)
-            {
-                if (TempSettings.Instance.GetModsDir(item) == path && SessionData.CurrentGame != item)
-                {
-                    Logger.Log("Error! Can't use this path. The location you chose is being used by " + item.ToString()
-                        + ". Please use another path for your mods folder");
-                    return;
-                }
-            }
-
-            TempSettings.Instance.SetModsDir(SessionData.CurrentGame, path);
-            Mods_UserControl.instance.PopulateMods(SessionData.CurrentGame);
-        }
-
         #region UI Events
         private void ModsUserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            PopulateMods(SessionData.CurrentGame);
+            PopulateMods(SessionData.currentGame);
 
-            BgThread.AddToQueue(() =>
+            /*BgThread.AddToQueue(() =>
             {
-                string modsDir = GameInfo.GetGame(SessionData.CurrentGame).GameDir + "\\Mods";
-                int lastFileCount = Directory.GetFiles(modsDir).Count();
-                
+                int lastFileCount = Directory.GetFiles(SessionData.ModsDir).Count();
+
                 while (true)
                 {
                     Thread.Sleep(1000);
-                    var files = Directory.GetFiles(modsDir);
+                    var files = Directory.GetFiles(SessionData.ModsDir);
                     if (files.Count() == lastFileCount)
                         continue;
 
                     lastFileCount = files.Count();
                     OnRepopulateMods(new ModUcEventArgs());
                 }
-            });
+            });*/
         }
         private void ModsUserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -278,17 +244,7 @@ namespace BTD6_Mod_Manager.UserControls
 
         private void AddMods_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (String.IsNullOrEmpty(TempSettings.Instance.GetModsDir(SessionData.CurrentGame)))
-            {
-                SetModsDir();
-                if (String.IsNullOrEmpty(TempSettings.Instance.GetModsDir(SessionData.CurrentGame)))
-                {
-                    Logger.Log("Can't add mods. You need to set a mods directory.");
-                    return;
-                }
-            }
-
-            string modFolder = TempSettings.Instance.GetModsDir(SessionData.CurrentGame);
+            string modFolder = SessionData.ModsDir;
             if (!Directory.Exists(modFolder))
                 Directory.CreateDirectory(modFolder);
 

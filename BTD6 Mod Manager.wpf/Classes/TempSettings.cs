@@ -4,14 +4,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace BTD6_Mod_Manager.Classes
 {
-    class TempSettings
+    /*class TempSettings
     {
         private static TempSettings instance;
 
@@ -38,12 +34,14 @@ namespace BTD6_Mod_Manager.Classes
         public bool ShownBtdApiInjectorMessage { get; set; } = false;
         public GameType LastGame { get; set; } = GameType.BTD6;
         public List<string> LastUsedMods { get; set; } = new List<string>();
-        public string BTD6_ModsDir { get; set; }
+        
+        [JsonProperty]
+        private string BTD6_ModsDir { get; set; }
         
         public TempSettings()
         {
-            /*settingsFileName = "settings.json";*/
-            /*MainSettingsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";*/
+            *//*settingsFileName = "settings.json";*/
+            /*MainSettingsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";*//*
         }
 
         public TempSettings LoadSettings()
@@ -90,16 +88,28 @@ namespace BTD6_Mod_Manager.Classes
 
         public void CreateNewSettings()
         {
-            BTD6_ModsDir = GameInfo.GetGame(GameType.BTD6).GameDir + "\\Mods";
+            BTD6_ModsDir = SteamUtils.GetGameDir(GameType.BTD6) + "\\Mods";
+            Logger.Log(BTD6_ModsDir, OutputType.Both);
             SaveSettings();
         }
 
-        public string GetModsDir(GameType game) => BTD6_ModsDir;
+        public string GetModsDir() => GetModsDir(SessionData.CurrentGame);
 
+        public string GetModsDir(GameType game)
+        {
+            string modsDir = BTD6_ModsDir;
+            if (String.IsNullOrEmpty(modsDir))
+                Logger.Log("Mods Directory is null. Please create a Mods folder in your BTD6 folder", OutputType.Both);
+
+            Directory.CreateDirectory(modsDir);
+            return modsDir;
+        }
+
+        public void SetModsDir(string path) => SetModsDir(SessionData.CurrentGame, path);
         public void SetModsDir(GameType game, string path)
         {
             BTD6_ModsDir = path;
             SaveSettings();
         }
-    }
+    }*/
 }

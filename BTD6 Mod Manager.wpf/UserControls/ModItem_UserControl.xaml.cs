@@ -8,6 +8,7 @@ using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.UserControls;
 using BTD6_Mod_Manager.Windows;
+using BTD6_Mod_Manager.Persistance;
 
 namespace BTD6_Mod_Manager
 {
@@ -34,12 +35,12 @@ namespace BTD6_Mod_Manager
 
             if (cb.IsChecked == true)
             {
-                if (!TempSettings.Instance.LoadedFirstMod)
+                if (!Settings.LoadedSettings.LoadedFirstMod)
                 {
                     Logger.Log("Congrats! You selected your first mod! When you're ready, press the green \"Launch\" button" +
                         " at the top of the program to launch and inject your mods!", OutputType.Both);
-                    TempSettings.Instance.LoadedFirstMod = true;
-                    TempSettings.Instance.SaveSettings();
+                    Settings.LoadedSettings.LoadedFirstMod = true;
+                    Settings.LoadedSettings.Save();
                 }
 
                 if (!Mods_UserControl.instance.SelectedMods_ListBox.Items.Contains(modName))
@@ -52,7 +53,7 @@ namespace BTD6_Mod_Manager
                     Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex = Mods_UserControl.instance.SelectedMods_ListBox.Items.Count - 1;
                     Mods_UserControl.instance.modPaths.Add(modPath);
                     SessionData.LoadedMods.Add(modPath);
-                    TempSettings.Instance.SaveSettings();*/
+                    Settings.LoadedSettings.Save();*/
                 }
             }
             else
@@ -68,7 +69,7 @@ namespace BTD6_Mod_Manager
                     Mods_UserControl.instance.SelectedMods_ListBox.Items.Remove(modName);
                     Mods_UserControl.instance.modPaths.Remove(modPath);
                     SessionData.LoadedMods.Remove(modPath);
-                    TempSettings.Instance.SaveSettings();
+                    Settings.LoadedSettings.Save();
 
                     if (selected == 0 && Mods_UserControl.instance.SelectedMods_ListBox.Items.Count >= 1)
                         Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex = selected;
@@ -125,7 +126,7 @@ namespace BTD6_Mod_Manager
             }
 
             File.Move(modPath, dest);
-            Mods_UserControl.instance.PopulateMods(SessionData.CurrentGame);
+            Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
             
             renaming = false;
             RenameWindow.RenameComplete -= RenameWindow_RenameComplete;
@@ -136,7 +137,7 @@ namespace BTD6_Mod_Manager
         {
             if (!File.Exists(modPath))
             {
-                Mods_UserControl.instance.PopulateMods(SessionData.CurrentGame);
+                Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
                 return;
             }
 
@@ -145,7 +146,7 @@ namespace BTD6_Mod_Manager
                 return;
 
             File.Delete(modPath);
-            Mods_UserControl.instance.PopulateMods(SessionData.CurrentGame);
+            Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
         }
 
         private void OpenMod_Button_Click(object sender, RoutedEventArgs e)

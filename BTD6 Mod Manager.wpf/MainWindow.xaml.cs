@@ -1,17 +1,14 @@
-﻿using BTD6_Mod_Manager.Classes;
+﻿using BTD6_Mod_Manager.IO;
 using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Lib.Game;
 using BTD6_Mod_Manager.Lib.MelonMods;
-using BTD6_Mod_Manager.Lib.Natives;
 using BTD6_Mod_Manager.Lib.Persistance;
-using Ionic.Zip;
-using Microsoft.Win32;
+using BTD6_Mod_Manager.Persistance;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -27,38 +24,35 @@ namespace BTD6_Mod_Manager
         public static bool doingWork = false;
         public static string workType = "";
         public static MainWindow instance;
+        DispatcherTimer blinkTimer;
+
         public MainWindow()
         {
             InitializeComponent();
-            Logger.MessageLogged += Log_MessageLogged;
-            SessionData.CurrentGame = GameType.BTD6;
             Startup();
         }
 
         private void Startup()
         {
-            UserData.UserDataLoaded += UserData_UserDataLoaded;
-            TempSettings.Instance.LoadSettings();
-            TempSettings.Instance.SaveSettings();
-
-            if (TempSettings.Instance.BTD6_ModsDir.Contains(TempSettings.Instance.MainSettingsDir))
-                MoveModsToNewFolder();
+            SessionData.currentGame = GameType.BTD6;            
+            Logger.MessageLogged += Log_MessageLogged;
+            blinkTimer = new DispatcherTimer();
         }
 
         private void OnFinishedLoading()
         {
             SetVersionTextBlock();
-            
+
             Logger.Log("Program initializing...");
             Logger.Log("Welcome to BTD6 Mod Manager!");
-            
+
             string tdloaderDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader";
             UserData.MainProgramExePath = Environment.CurrentDirectory + "\\BTD6 Mod Manager.exe";
             UserData.MainProgramName = "BTD6 Mod Manager";
             UserData.MainSettingsDir = tdloaderDir;
             UserData.UserDataFilePath = tdloaderDir + "\\userdata.json";
 
-            if (TempSettings.Instance.IsNewUser)
+            if (Settings.LoadedSettings.IsNewUser)
             {
                 var diag = MessageBox.Show("Would you like to see a tutorial on how to use this mod manager?", "Open tutorial?", MessageBoxButton.YesNo);
                 if (diag == MessageBoxResult.Yes)
@@ -70,8 +64,9 @@ namespace BTD6_Mod_Manager
                 else
                     MessageBox.Show("Okay. If you want to see it later, just click on the \"Help\" at the top of the mod manager," +
                         " then click \"How to use Mod Manager\"");
-                TempSettings.Instance.IsNewUser = false;
-                TempSettings.Instance.SaveSettings();
+
+                Settings.LoadedSettings.IsNewUser = false;
+                Settings.LoadedSettings.Save();
             }
         }
 
@@ -84,43 +79,6 @@ namespace BTD6_Mod_Manager
                 version = version.Remove(version.Length - 2, 2);
 
             Version_TextBlock.Text = "Version " + version;
-        }
-
-        private void MoveModsToNewFolder()
-        {
-            string oldModsDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\TD Loader\\BTD6 Mods";
-            
-            Logger.Log("Path to BTD6 mods is outdated. Moving mods folder");
-
-            string btd6ExePath = SteamUtils.GetGameDir(SessionData.CurrentGame);
-            string newModsDir = btd6ExePath + "\\Mods";
-
-            TempSettings.Instance.BTD6_ModsDir = newModsDir;
-            TempSettings.Instance.SaveSettings();
-
-            if (!Directory.Exists(oldModsDir))
-                return;
-
-            if (!Directory.Exists(newModsDir))
-                Directory.CreateDirectory(newModsDir);
-
-            var files = Directory.GetFiles(oldModsDir);
-
-            foreach (var item in files)
-            {
-                FileInfo f = new FileInfo(item);
-                string newPath = newModsDir + "\\" + f.Name;
-                if (!File.Exists(newPath))
-                    File.Move(f.FullName, newPath);
-            }
-
-            
-        }
-
-        private void UserData_UserDataLoaded(object sender, UserData.UserDataEventArgs e)
-        {
-            /*BTD6_CrashHandler handler = new BTD6_CrashHandler();
-            handler.EnableCrashLog();*/
         }
 
         private void DeleteOldUpdaterFiles()
@@ -137,47 +95,22 @@ namespace BTD6_Mod_Manager
             }
         }
 
-        private void ExtractNewUpdater()
-        {
-            var files = new DirectoryInfo(Environment.CurrentDirectory).GetFiles();
-            foreach (var file in files)
-            {
-                string cleanedName = file.Name.Replace(".", "").Replace(" ", "").Replace("_", "").ToLower();
-                if (cleanedName != "btd6modmanagerzip")
-                    continue;
-
-                ZipFile zip = new ZipFile(file.FullName);
-                foreach (var entry in zip.Entries)
-                {
-                    MessageBox.Show(entry.FileName);
-                    if (entry.FileName != "Updater.exe")
-                        continue;
-                    
-                    entry.Extract();
-                    break;  
-                }
-            }
-        }
-
         #region UI Events
         //========================================================
 
-        DispatcherTimer blinkTimer = new DispatcherTimer();
         private void Main_Loaded(object sender, RoutedEventArgs e)
         {
             blinkTimer.Tick += Console_Timer_Tick;
             blinkTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
 
-            BTD6_CrashHandler handler = new BTD6_CrashHandler();
-            handler.EnableCrashLog();
+            /*BTD6_CrashHandler handler = new BTD6_CrashHandler();
+            handler.EnableCrashLog();*/
 
             Lib.Web.UpdateHandler update = new Lib.Web.UpdateHandler();
 
             DeleteOldUpdaterFiles();
-            ExtractNewUpdater();
-
-            var game = GameInfo.GetGame(SessionData.CurrentGame);
-            BgThread.AddToQueue(() => 
+            var game = GameInfo.GetGame(SessionData.currentGame);
+            BgThread.AddToQueue(() =>
             {
                 update.HandleUpdates(); //Removed updates due to causing issues
                 string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
@@ -207,7 +140,7 @@ namespace BTD6_Mod_Manager
             }
         }
 
-        private void Main_Closing(object sender, CancelEventArgs e) => TempSettings.Instance.SaveSettings();
+        private void Main_Closing(object sender, CancelEventArgs e) => Settings.LoadedSettings.Save();
 
         private void ConsoleColapsed(object sender, RoutedEventArgs e)
         {
@@ -225,25 +158,22 @@ namespace BTD6_Mod_Manager
 
         private void OpenSettingsDir_Button_Click(object sender, RoutedEventArgs e)
         {
-            Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
-            TempSettings.Instance.SaveSettings();
-            Process.Start(TempSettings.Instance.MainSettingsDir);
+            Settings.LoadedSettings.Save();
+            Process.Start(Settings.settingsDir);
         }
 
         //startng herere ====================================================
         private void Settings_Button_Click(object sender, RoutedEventArgs e)
         {
-            Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
-            string settingsPath = TempSettings.Instance.MainSettingsDir + "\\" + TempSettings.Instance.settingsFileName;
+            Directory.CreateDirectory(Settings.settingsDir);
+            if (!File.Exists(Settings.settingsFilePath))
+                Settings.LoadedSettings.Save();
 
-            if (!File.Exists(settingsPath))
-                TempSettings.Instance.SaveSettings();
-
-            Process.Start(settingsPath);
+            Process.Start(Settings.settingsFilePath);
         }
         private void Launch_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (String.IsNullOrEmpty(TempSettings.Instance.GetModsDir(SessionData.CurrentGame)))
+            if (String.IsNullOrEmpty(SessionData.ModsDir))
             {
                 Logger.Log("Error! You can't launch yet because you need to set a mods directory for your selected game");
                 return;
@@ -264,27 +194,18 @@ namespace BTD6_Mod_Manager
 
         private void OpenBTD6_ModDir_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(TempSettings.Instance.MainSettingsDir))
-            {
-                Directory.CreateDirectory(TempSettings.Instance.MainSettingsDir);
-                TempSettings.Instance.SaveSettings();
-                //UserData.SaveUserData();
-            }
-
-            string dir = TempSettings.Instance.GetModsDir(SessionData.CurrentGame);
+            string dir = SessionData.ModsDir;
             if (String.IsNullOrEmpty(dir))
                 return;
 
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
+            Directory.CreateDirectory(dir);
             Process.Start(dir);
         }
 
         private void Log_MessageLogged(object sender, Logger.LogEvents e)
         {
             if (e.Output == OutputType.MsgBox)
-                System.Windows.Forms.MessageBox.Show(e.Message);
+                MessageBox.Show(e.Message);
             else
             {
                 OutputLog.Dispatcher.BeginInvoke((Action)(() =>
@@ -292,20 +213,21 @@ namespace BTD6_Mod_Manager
                     OutputLog.AppendText(e.Message);
                     OutputLog.ScrollToEnd();
                 }));
-                
+
                 if (e.Output == OutputType.Both)
-                    System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ",""));
+                    System.Windows.Forms.MessageBox.Show(e.Message.Replace(">> ", ""));
             }
 
-            if (TempSettings.Instance.ConsoleFlash && OutputLog.Visibility == Visibility.Collapsed)
+            bool showConsoleFlash = Settings.LoadedSettings.ConsoleFlash;
+            bool isConsoleCollapsed = OutputLog.Visibility == Visibility.Collapsed;
+            if (showConsoleFlash && isConsoleCollapsed)
                 blinkTimer.Start();
         }
 
 
         private void Test_Button1_Click(object sender, RoutedEventArgs e)
         {
-            /*BTD6_CrashHandler bTD6_CrashHandler = new BTD6_CrashHandler();
-            bTD6_CrashHandler.CheckForCrashes();*/
+            
         }
 
         // The timer's Tick event.
@@ -369,6 +291,39 @@ namespace BTD6_Mod_Manager
         private void Window_Closed(object sender, EventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void BrowseModDir_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Press \"Yes\" to try automatically finding game dir, Press \"No\" to browse for it yourself",
+                "Auto-Detect Game Dir?", MessageBoxButton.YesNoCancel);
+
+            if (result == MessageBoxResult.Cancel)
+                return;
+
+            string gameDir = "";
+            if (result == MessageBoxResult.Yes)
+            {
+                gameDir = FileIO.AutoDetectGameDir();
+                if (string.IsNullOrEmpty(gameDir))
+                {
+                    var shouldBrowse = MessageBox.Show("Failed to Auto-Detect game dir, do you want to browse for it manually?",
+                        "Browse for game dir?", MessageBoxButton.YesNo);
+
+                    if (shouldBrowse == MessageBoxResult.No)
+                        return;
+                }
+            }
+
+            if (result == MessageBoxResult.No || string.IsNullOrEmpty(gameDir))
+                gameDir = FileIO.BrowseForGameDir();
+
+            if (string.IsNullOrEmpty(gameDir))
+                return;
+
+            Settings.LoadedSettings.BTD6ModsDir = $"{gameDir}\\Mods";
+            Settings.LoadedSettings.Save();
+            UserControls.Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
         }
     }
 }
