@@ -325,5 +325,10 @@ namespace BTD6_Mod_Manager
             Settings.LoadedSettings.Save();
             UserControls.Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
         }
+
+        private void RefreshMods_Button_Click(object sender, RoutedEventArgs e)
+        {
+            UserControls.Mods_UserControl.instance.PopulateMods(SessionData.currentGame);
+        }
     }
 }
