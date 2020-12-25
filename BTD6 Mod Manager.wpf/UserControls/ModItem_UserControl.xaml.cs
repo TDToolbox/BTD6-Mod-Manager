@@ -9,6 +9,7 @@ using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.UserControls;
 using BTD6_Mod_Manager.Windows;
 using BTD6_Mod_Manager.Persistance;
+using BTD6_Mod_Manager.Lib.Game;
 
 namespace BTD6_Mod_Manager
 {
@@ -30,6 +31,10 @@ namespace BTD6_Mod_Manager
         {
             if (TempGuard.IsDoingWork(MainWindow.workType))
                 return;
+
+            bool isBtd6Running = SteamUtils.IsGameRunning(GameType.BTD6);
+            if (isBtd6Running)
+                Logger.Log("You need to restart BTD6 for your changes to take place", OutputType.Both);
 
             CheckBox cb = (CheckBox)(sender);
 

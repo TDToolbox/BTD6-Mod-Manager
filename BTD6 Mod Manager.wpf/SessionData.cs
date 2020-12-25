@@ -15,6 +15,7 @@ namespace BTD6_Mod_Manager
         public static string ModsDir { get { return GetModsDir(); } }
 
         public static List<string> loadedMods = new List<string>();
+        public static bool ShownInjectorRequiredMessage = false;
 
         private static string GetModsDir()
         {

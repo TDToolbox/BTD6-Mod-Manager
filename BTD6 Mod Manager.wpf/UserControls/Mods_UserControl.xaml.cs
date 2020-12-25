@@ -6,9 +6,6 @@ using System.Windows.Controls;
 using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Lib.Game;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics;
 using BTD6_Mod_Manager.Persistance;
 
 namespace BTD6_Mod_Manager.UserControls
@@ -74,12 +71,8 @@ namespace BTD6_Mod_Manager.UserControls
                         continue;
                     }
 
-                    string modName = "";
-                    if (File.Exists(mod))
-                        modName = mod;
-                    else
-                        modName = mod + disabledKey;
-
+                    
+                    string modName = (File.Exists(mod)) ? mod : mod + disabledKey;
                     TempList.Add(modName);
                     AddToSelectedModLB(modName);
                 }
@@ -106,7 +99,7 @@ namespace BTD6_Mod_Manager.UserControls
             if (Settings.LoadedSettings.LastUsedMods.Contains(modFile.FullName))
                 Settings.LoadedSettings.LastUsedMods.Remove(modFile.FullName);
 
-            if (!modFile.FullName.Contains(".btd6mod") && !modFile.FullName.EndsWith(disabledKey))
+            if (!modFile.FullName.EndsWith(disabledKey))
             {
                 string newPath = modFile.FullName + disabledKey;
                 if (File.Exists(newPath))
@@ -148,18 +141,30 @@ namespace BTD6_Mod_Manager.UserControls
             }
 
             SelectedMods_ListBox.SelectedIndex = SelectedMods_ListBox.Items.Count - 1;
+
+            bool isBtd6ApiMod = f.Extension == ".btd6mod";
+            bool injectorExists = BtdApi_Handler.DoesInjectorExist(SessionData.ModsDir);
+            bool shownInjectorNeededMsg = SessionData.ShownInjectorRequiredMessage;
+
+            bool showErrorMessage = (isBtd6ApiMod && !injectorExists && !shownInjectorNeededMsg);
+            if (showErrorMessage)
+            {
+                BtdApi_Handler.AskDownloadInjector();
+                SessionData.ShownInjectorRequiredMessage = true;
+                Settings.LoadedSettings.ShownBtdApiInjectorMessage = true;
+            }
         }
         
 
         public void AddItemToModsList(string modPath) => AddItemToModsList(new FileInfo(modPath));
         public void AddItemToModsList(FileInfo modFile)
         {
-            string modName = "";
+            string modName;
             bool isBtdApiMod = modFile.FullName.Contains(".btd6mod");
             bool isLastUsedMod = Settings.LoadedSettings.LastUsedMods.Contains(modFile.FullName);
             bool isDisabled = modFile.FullName.EndsWith(disabledKey);
 
-            if (!isBtdApiMod && !isLastUsedMod && !isDisabled)
+            if (!isLastUsedMod && !isDisabled)
             {
                 string newPath = modFile.FullName + disabledKey;
                 if (File.Exists(newPath))
@@ -174,22 +179,13 @@ namespace BTD6_Mod_Manager.UserControls
                 Logger.Log("One or more of your mods are BTD API mods. This means you need to use an injector to inject them into BTD6.", OutputType.Both);
 
                 string btd6ModsDir = SessionData.ModsDir;
-                if (!File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll") && !File.Exists(btd6ModsDir + "\\BtdAPI_Injector.dll.disabled"))
+                if (!BtdApi_Handler.DoesInjectorExist(SessionData.ModsDir))
                 {
-                    var result = MessageBox.Show("The Injector for BTD6 API mods was not found. It is required in order to use BTD6 API mods." +
-                        " Do you want to download it?", "Download BTD6 API Injector?", MessageBoxButton.YesNo);
-
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        Process.Start("https://www.nexusmods.com/bloonstd6/mods/41?tab=description");
-                    }
-                    else
-                    {
-                        Logger.Log("You chose not to download the injector. You're BTD6 API mods won't work until you get it" +
-                            ". However, all other BTD6 mods will continue to work.", OutputType.Both);
-                    }
+                    BtdApi_Handler.AskDownloadInjector();
                 }
+
                 Settings.LoadedSettings.ShownBtdApiInjectorMessage = true;
+                SessionData.ShownInjectorRequiredMessage = true;
             }
 
             modName = modFile.Name.Replace(disabledKey, "");
@@ -215,22 +211,6 @@ namespace BTD6_Mod_Manager.UserControls
         private void ModsUserControl_Loaded(object sender, RoutedEventArgs e)
         {
             PopulateMods(SessionData.currentGame);
-
-            /*BgThread.AddToQueue(() =>
-            {
-                int lastFileCount = Directory.GetFiles(SessionData.ModsDir).Count();
-
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                    var files = Directory.GetFiles(SessionData.ModsDir);
-                    if (files.Count() == lastFileCount)
-                        continue;
-
-                    lastFileCount = files.Count();
-                    OnRepopulateMods(new ModUcEventArgs());
-                }
-            });*/
         }
         private void ModsUserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {

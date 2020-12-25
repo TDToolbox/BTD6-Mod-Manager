@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BgThread.cs" />
+    <Compile Include="BtdApi Handler.cs" />
     <Compile Include="Game\GameInfo.cs" />
     <Compile Include="Game\GameType.cs" />
     <Compile Include="Game\SteamUtils.cs" />
@@ -88,5 +89,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
