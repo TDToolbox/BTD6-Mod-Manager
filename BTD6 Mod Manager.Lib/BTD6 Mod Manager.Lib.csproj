@@ -83,7 +83,6 @@
     <Compile Include="Updaters\Universal_Updater.cs" />
     <Compile Include="Web\FileDownloader.cs" />
     <Compile Include="Web\GithubReleaseConfig.cs" />
-    <Compile Include="Web\UpdateHandler.cs" />
     <Compile Include="Web\WebReader.cs" />
   </ItemGroup>
   <ItemGroup>

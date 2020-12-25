@@ -17,7 +17,9 @@ namespace BTD6_Mod_Manager_Updater
                 return;
 
             Output("Updater for " + projName + " has started!");
+            Output("Making sure Mod Manager is closed...");
             CloseWindow(projName);
+            CloseWindow(projName);  //Try one more time just to be safe and make sure it's closed
             CloseWindow(projName);  //Try one more time just to be safe and make sure it's closed
             ExtractFiles();
 
@@ -67,35 +69,33 @@ namespace BTD6_Mod_Manager_Updater
             }
         }
 
-        public static void CloseWindow(string windowMainTitle)
+        public static void CloseWindow(string processName)
         {
-            while (IsProgramRunning(windowMainTitle))
+            while (IsProgramRunning(processName))
             {
                 var openWindowProcesses = Process.GetProcesses()
         .Where(p => p.MainWindowHandle != IntPtr.Zero && p.ProcessName != "explorer");
 
                 foreach (var a in openWindowProcesses)
                 {
-                    //if (a.MainWindowTitle == windowMainTitle)
-                    if (a.MainWindowTitle == windowMainTitle)
+                    if (a.ProcessName == processName)
                     {
                         Output(projName + " is currently open. Close it to continue update");
                         a.CloseMainWindow();
+                        Thread.Sleep(350);
                     }
-                }
-
-                Thread.Sleep(350);
+                }   
             }
         }
 
-        public static bool IsProgramRunning(string windowMainTitle)
+        public static bool IsProgramRunning(string processName)
         {
-            var openWindowProcesses = System.Diagnostics.Process.GetProcesses()
+            var openWindowProcesses = Process.GetProcesses()
         .Where(p => p.MainWindowHandle != IntPtr.Zero && p.ProcessName != "explorer");
 
             foreach (var a in openWindowProcesses)
             {
-                if (a.MainWindowTitle == windowMainTitle)
+                if (a.ProcessName == processName)
                     return true;
             }
             return false;

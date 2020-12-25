@@ -103,16 +103,12 @@ namespace BTD6_Mod_Manager
             blinkTimer.Tick += Console_Timer_Tick;
             blinkTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
 
-            /*BTD6_CrashHandler handler = new BTD6_CrashHandler();
-            handler.EnableCrashLog();*/
-
-            Lib.Web.UpdateHandler update = new Lib.Web.UpdateHandler();
-
+            Lib.Updaters.ModManager_Updater update = new Lib.Updaters.ModManager_Updater();
             DeleteOldUpdaterFiles();
             var game = GameInfo.GetGame(SessionData.currentGame);
             BgThread.AddToQueue(() =>
             {
-                update.HandleUpdates(); //Removed updates due to causing issues
+                update.HandleUpdates(); 
                 string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
                 MelonMod_Handler.HandleUpdates(game.GameDir, gameD);
             });
