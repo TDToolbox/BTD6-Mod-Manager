@@ -212,6 +212,7 @@ namespace BTD6_Mod_Manager.UserControls
         {
             PopulateMods(SessionData.currentGame);
         }
+
         private void ModsUserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             foreach (ModItem_UserControl item in Mods_ListBox.Items)
