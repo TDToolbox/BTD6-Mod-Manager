@@ -58,8 +58,18 @@ namespace BTD6_Mod_Manager.Lib.MelonMods
         /// </summary>
         /// <param name="filePath">FilePath to the file you want to get MelonModInfo from</param>
         /// <returns></returns>
-        public static MelonInfoAttribute GetModInfo(string filePath) =>
-            GetModInfo(System.Reflection.Assembly.LoadFrom(filePath));
+        public static MelonInfoAttribute GetModInfo(string filePath)
+        {
+            try
+            {
+                return GetModInfo(System.Reflection.Assembly.LoadFrom(filePath));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+            
 
         /// <summary>
         /// Get the MelonInfo of the mod with the provided Assembly

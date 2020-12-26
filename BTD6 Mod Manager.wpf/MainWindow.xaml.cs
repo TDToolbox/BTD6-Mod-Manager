@@ -52,6 +52,8 @@ namespace BTD6_Mod_Manager
             UserData.MainSettingsDir = tdloaderDir;
             UserData.UserDataFilePath = tdloaderDir + "\\userdata.json";
 
+            SessionData.loadedMods = Settings.LoadedSettings.LastUsedMods;
+
             if (Settings.LoadedSettings.IsNewUser)
             {
                 var diag = MessageBox.Show("Would you like to see a tutorial on how to use this mod manager?", "Open tutorial?", MessageBoxButton.YesNo);
@@ -129,11 +131,11 @@ namespace BTD6_Mod_Manager
         bool finishedLoading = false;
         private void Main_Activated(object sender, EventArgs e)
         {
-            if (finishedLoading == false)
-            {
-                finishedLoading = true;
-                OnFinishedLoading();
-            }
+            if (finishedLoading)
+                return;
+
+            OnFinishedLoading();
+            finishedLoading = true;
         }
 
         private void Main_Closing(object sender, CancelEventArgs e) => Settings.LoadedSettings.Save();
@@ -174,6 +176,7 @@ namespace BTD6_Mod_Manager
                 Logger.Log("Error! You can't launch yet because you need to set a mods directory for your selected game");
                 return;
             }
+
 
             Launcher.Launch();
         }

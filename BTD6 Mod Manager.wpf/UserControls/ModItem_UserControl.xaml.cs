@@ -53,12 +53,6 @@ namespace BTD6_Mod_Manager
                     Mods_UserControl.instance.AddToSelectedModLB(modPath);
                     if (modPath.EndsWith(Mods_UserControl.instance.disabledKey))
                         modPath = modPath.Replace(Mods_UserControl.instance.disabledKey, "");
-
-                    /*Mods_UserControl.instance.SelectedMods_ListBox.Items.Add(modName);
-                    Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex = Mods_UserControl.instance.SelectedMods_ListBox.Items.Count - 1;
-                    Mods_UserControl.instance.modPaths.Add(modPath);
-                    SessionData.LoadedMods.Add(modPath);
-                    Settings.LoadedSettings.Save();*/
                 }
             }
             else
@@ -69,17 +63,6 @@ namespace BTD6_Mod_Manager
                     Mods_UserControl.instance.RemoveFromSelectedLB(modPath);
                     if (!modPath.EndsWith(Mods_UserControl.instance.disabledKey))
                         modPath += Mods_UserControl.instance.disabledKey;
-
-                    /*int selected = Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex;
-                    Mods_UserControl.instance.SelectedMods_ListBox.Items.Remove(modName);
-                    Mods_UserControl.instance.modPaths.Remove(modPath);
-                    SessionData.LoadedMods.Remove(modPath);
-                    Settings.LoadedSettings.Save();
-
-                    if (selected == 0 && Mods_UserControl.instance.SelectedMods_ListBox.Items.Count >= 1)
-                        Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex = selected;
-                    else if (Mods_UserControl.instance.SelectedMods_ListBox.Items.Count > 1)
-                        Mods_UserControl.instance.SelectedMods_ListBox.SelectedIndex = selected - 1;*/
                 }
             }
 

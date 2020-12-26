@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using BTD6_Mod_Manager.Classes;
 using BTD6_Mod_Manager.Lib;
 using BTD6_Mod_Manager.Lib.Game;
+using BTD6_Mod_Manager.Lib.MelonMods;
 using BTD6_Mod_Manager.Persistance;
 
 namespace BTD6_Mod_Manager.UserControls
@@ -99,6 +100,10 @@ namespace BTD6_Mod_Manager.UserControls
             if (Settings.LoadedSettings.LastUsedMods.Contains(modFile.FullName))
                 Settings.LoadedSettings.LastUsedMods.Remove(modFile.FullName);
 
+            if (SessionData.loadedMods.Contains(modFile.FullName))
+                SessionData.loadedMods.Remove(modFile.FullName);
+
+
             if (!modFile.FullName.EndsWith(disabledKey))
             {
                 string newPath = modFile.FullName + disabledKey;
@@ -131,6 +136,9 @@ namespace BTD6_Mod_Manager.UserControls
                 Settings.LoadedSettings.LastUsedMods.Add(f.FullName);
                 Settings.LoadedSettings.Save();
             }
+
+            if (!SessionData.loadedMods.Contains(f.FullName))
+                SessionData.loadedMods.Add(f.FullName);
 
             SelectedMods_ListBox.Items.Add(f.Name);
 
@@ -232,12 +240,10 @@ namespace BTD6_Mod_Manager.UserControls
             MainWindow.doingWork = true;
             MainWindow.workType = "Adding mods";
 
-            //string allModTypes = "All Mod Types|*.jet;*.zip;*.rar;*.7z;*.btd6mod;*.dll;*.boo;*.chai";
             string allModTypes = "All Mod Types|";
             foreach (var item in fileExtensions)
-            {
                 allModTypes += "*" + item + ";";
-            }
+
             allModTypes = allModTypes.TrimEnd(';');
 
             List<string> mods = FileIO.BrowseForFiles("Browse for mods", "", allModTypes + "|Dll files (*.dll)|Jet files (*.jet)|*.jet|Zip files (*.zip)|*.zip|Rar files (*.rar)|*.rar|7z files (*.7z)|*.7z|BTD6API mods (*.btd6mod)|*.btd6mod|", "");
