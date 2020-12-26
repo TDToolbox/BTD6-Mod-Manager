@@ -42,7 +42,8 @@ namespace BTD6_Mod_Manager
                 if (!isDuplicate)
                     continue;
 
-                Logger.Log($"Error! You are trying to load \"{melonModName}\" twice. You need to disable one to continue.", OutputType.Both);
+                Logger.Log($"Error! You are trying to load \"{melonModName}\" more than once. " +
+                    $"You can only have one of \"{melonModName}\" active at a time.", OutputType.Both);
                 return false;
             }
 
