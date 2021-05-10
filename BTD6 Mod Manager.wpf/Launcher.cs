@@ -35,7 +35,7 @@ namespace BTD6_Mod_Manager
                     continue;
 
                 var melonInfo = MelonMod_Handler.GetModInfo(filePath);
-                string melonModName = melonInfo.Name;
+                string melonModName = string.IsNullOrEmpty(melonInfo?.Name) ? "" : melonInfo.Name;
 
                 var similarMods = SessionData.loadedMods.Count(dupMod => GetModInfo(dupMod)?.Name == melonModName);
                 bool isDuplicate = (similarMods > 1);

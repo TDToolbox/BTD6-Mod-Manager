@@ -43,7 +43,7 @@ namespace BTD6_Mod_Manager
                 if (!Settings.LoadedSettings.LoadedFirstMod)
                 {
                     Logger.Log("Congrats! You selected your first mod! When you're ready, press the green \"Launch\" button" +
-                        " at the top of the program to launch and inject your mods!", OutputType.Both);
+                        " at the top of the program to launch the game and play with your mods!", OutputType.Both);
                     Settings.LoadedSettings.LoadedFirstMod = true;
                     Settings.LoadedSettings.Save();
                 }

@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,19 +57,17 @@ namespace BTD6_Mod_Manager
 
             if (Settings.LoadedSettings.IsNewUser)
             {
+                Settings.LoadedSettings.IsNewUser = false;
+                Settings.LoadedSettings.Save();
+
                 var diag = MessageBox.Show("Would you like to see a tutorial on how to use this mod manager?", "Open tutorial?", MessageBoxButton.YesNo);
                 if (diag == MessageBoxResult.Yes)
                 {
-                    Windows.WebBrowser browser = new Windows.WebBrowser("How to use this Mod Manager");
-                    browser.Show();
-                    browser.GoToURL("https://youtu.be/RyB5MyMpOlE?t=613");
+                    Process.Start("https://youtu.be/RyB5MyMpOlE?t=613");
                 }
                 else
                     MessageBox.Show("Okay. If you want to see it later, just click on the \"Help\" at the top of the mod manager," +
                         " then click \"How to use Mod Manager\"");
-
-                Settings.LoadedSettings.IsNewUser = false;
-                Settings.LoadedSettings.Save();
             }
         }
 
@@ -111,9 +110,23 @@ namespace BTD6_Mod_Manager
             BgThread.AddToQueue(() =>
             {
                 update.HandleUpdates(); 
-                string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.ModHandler.dll";
+                string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.dll";
                 MelonMod_Handler.HandleUpdates(game.GameDir, gameD);
             });
+
+            // check for mod helper and download if not exists
+            var files = Directory.GetFiles(game.GameDir + "\\Mods");
+            var hasModHelper = files.Any(file => file.ToLower().Replace(" ", "").Replace(".", "").Contains("modhelperdll"));
+            if (!hasModHelper)
+            {
+                var result = MessageBox.Show("It seems you don't have Bloons Mod Helper installed. Most mods require this to work." +
+                    " Do you want to download it now?", "Download Bloons Mod Helper?", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    MessageBox.Show("Great! The download will open when you close this popup. To get it, download BloonsTD6_Mod_Helper.zip and extract it to your BTD6 mod's folder");
+                    Process.Start("https://github.com/gurrenm3/BTD-Mod-Helper/releases");
+                }
+            }
         }
 
         private void ToolBar_Loaded(object sender, RoutedEventArgs e)
@@ -188,7 +201,7 @@ namespace BTD6_Mod_Manager
 
         private void Discord_Button_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("https://discord.gg/VADMF2M");
+            Process.Start("https://discord.gg/NnD6nRH");
         }
 
         private void OpenBTD6_ModDir_Button_Click(object sender, RoutedEventArgs e)

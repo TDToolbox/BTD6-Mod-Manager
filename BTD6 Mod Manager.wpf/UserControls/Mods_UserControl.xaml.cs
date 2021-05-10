@@ -263,7 +263,7 @@ namespace BTD6_Mod_Manager.UserControls
                 File.Copy(mod, dest);
                 f = new FileInfo(dest);
                 
-                AddItemToModsList(f.FullName);
+                AddToSelectedModLB(f.FullName);
             }
 
             MainWindow.doingWork = false;

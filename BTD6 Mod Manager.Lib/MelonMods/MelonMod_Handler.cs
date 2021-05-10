@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using BTD6_Mod_Manager.Lib.Web;
 using BTD6_Mod_Manager.Lib.Updaters;
+using System.Reflection;
 
 namespace BTD6_Mod_Manager.Lib.MelonMods
 {
@@ -81,8 +82,14 @@ namespace BTD6_Mod_Manager.Lib.MelonMods
             MelonInfoAttribute callingMod = null;
 
             var cust = MelonInfoAttribute.GetCustomAttributes(modAssembly);
+
+            var att = modAssembly.GetCustomAttribute<MelonModInfoAttribute>();
+            Debug.WriteLine(att is null);
+
             foreach (var item in cust)
             {
+                //Debug.WriteLine(item);
+
                 if (item is MelonInfoAttribute)
                     callingMod = (MelonInfoAttribute)item;
             }

@@ -155,21 +155,21 @@ namespace BTD6_Mod_Manager.Lib.Updaters
             foreach (string file in downloads)
             {
                 FileDownloader downloader = new FileDownloader();
+                Logger.Log(file);
+                Logger.Log(DownloadDir);
                 downloader.DownloadFile(file, DownloadDir);
             }
-            
         }
 
         private List<string> GetDownloadURLs()
         {
-            const int requiredIndex = 1;
+            const string requiredFileEnding = "x64.zip";
             List<string> downloads = new List<string>();
-            for (int i = -1; i < LatestReleaseInfo.Assets.Count; i++)
+            foreach (var asset in LatestReleaseInfo.Assets)
             {
-                if (i != requiredIndex)
+                if (!asset.Name.EndsWith(requiredFileEnding))
                     continue;
 
-                var asset = LatestReleaseInfo.Assets[i];
                 Logger.Log("Downloading " + asset.BrowserDownloadUrl.ToString());
                 downloads.Add(asset.BrowserDownloadUrl.ToString());
             }
