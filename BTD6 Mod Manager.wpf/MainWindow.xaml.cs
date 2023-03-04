@@ -4,6 +4,7 @@ using BTD6_Mod_Manager.Lib.Game;
 using BTD6_Mod_Manager.Lib.MelonMods;
 using BTD6_Mod_Manager.Lib.Persistance;
 using BTD6_Mod_Manager.Persistance;
+using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -52,6 +53,7 @@ namespace BTD6_Mod_Manager
             UserData.MainProgramName = "BTD6 Mod Manager";
             UserData.MainSettingsDir = tdloaderDir;
             UserData.UserDataFilePath = tdloaderDir + "\\userdata.json";
+            var userData = UserData.Instance;
 
             SessionData.loadedMods = Settings.LoadedSettings.LastUsedMods;
 
@@ -107,11 +109,58 @@ namespace BTD6_Mod_Manager
             Lib.Updaters.ModManager_Updater update = new Lib.Updaters.ModManager_Updater();
             DeleteOldUpdaterFiles();
             var game = GameInfo.GetGame(SessionData.currentGame);
+            if (game == null)
+            {
+                Logger.Log("Failed to get game info!");
+                return;
+            }
+
+            // check if game directory is found
+            if (string.IsNullOrEmpty(game.GameDir) || !Directory.Exists(game.GameDir))
+            {
+                Logger.Log($"Game directory for {SessionData.currentGame.ToString()} was not found! Please browse for {game.EXEName}", OutputType.MsgBox);
+                string path = FileIO.BrowseForFile($"Browse for {SessionData.currentGame.ToString()} EXE", ".exe", "Exe Files (*.exe)|*.exe", Environment.CurrentDirectory);
+                if (string.IsNullOrEmpty(path) || !File.Exists(path) || !path.EndsWith(game.EXEName))
+                {
+                    Logger.Log("The path that was selected was not valid! The program will now close", OutputType.MsgBox);
+                    Environment.Exit(0);
+                }
+
+                string gameDir = new FileInfo(path).Directory.FullName;
+                game.GameDir = gameDir;
+
+                switch (SessionData.currentGame)
+                {
+                    case GameType.BTD5:
+                        UserData.Instance.BTD5Dir = gameDir;
+                        break;
+                    case GameType.BTDB:
+                        UserData.Instance.BTDBDir = gameDir;
+                        break;
+                    case GameType.BMC:
+                        UserData.Instance.BMCDir = gameDir;
+                        break;
+                    case GameType.BTD6:
+                        UserData.Instance.BTD6Dir = gameDir;
+                        break;
+                    case GameType.BTDAT:
+                        UserData.Instance.BTDATDir = gameDir;
+                        break;
+                    default:
+                        break;
+                }
+
+                UserData.SaveUserData();
+
+
+                Logger.Log($"Game Directory was set to {gameDir}", OutputType.MsgBox);
+            }
+
             BgThread.AddToQueue(() =>
             {
                 update.HandleUpdates(); 
-                string gameD = game.GameDir + "\\MelonLoader\\MelonLoader.dll";
-                MelonMod_Handler.HandleUpdates(game.GameDir, gameD);
+                string melonLoaderDll = game.GameDir + "\\MelonLoader\\net6\\MelonLoader.dll";
+                MelonMod_Handler.HandleUpdates(game.GameDir, melonLoaderDll);
             });
 
             // check for mod helper and download if not exists

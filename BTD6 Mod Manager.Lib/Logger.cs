@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace BTD6_Mod_Manager.Lib
 {
@@ -63,7 +64,10 @@ namespace BTD6_Mod_Manager.Lib
         {
             LogEvents args = new LogEvents();
             args.Output = output;
-            args.Message = ">> " + text + Environment.NewLine;
+
+            string message = $">> {text}\n";
+            args.Message = message;
+            Debug.WriteLine(message);
             Instance.OnMessageLogged(args);
         }
     }

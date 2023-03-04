@@ -19,7 +19,19 @@ namespace BTD6_Mod_Manager.Lib.Persistance
         public static string MainSettingsDir;
         public static string UserDataFilePath;
 
-        public static UserData Instance;
+
+        private static UserData _instance;
+
+        public static UserData Instance
+        {
+            get 
+            {
+                if (_instance == null)
+                    _instance = LoadUserData();
+                return _instance; 
+            }
+            set { _instance = value; }
+        }
 
 
         /// <summary>
@@ -73,7 +85,7 @@ namespace BTD6_Mod_Manager.Lib.Persistance
         /// </summary>
         #region BTD6
         private static GameInfo btd6 = GameInfo.GetGame(GameType.BTD6);
-        public string BTD6Dir { get; set; } = btd6.GameDir;
+        public string BTD6Dir { get; set; }// = btd6.GameDir;
         public string BTD6Version { get; set; } = FileIO.GetFileVersion(btd6.GameDir + "\\" + btd6.EXEName);
         public string BTD6BackupDir { get; set; } = Environment.CurrentDirectory + "\\Backups\\" + btd6.Type.ToString();
         #endregion
@@ -125,6 +137,14 @@ namespace BTD6_Mod_Manager.Lib.Persistance
 
             if (PreviousProjects == null)
                 PreviousProjects = new List<string>();
+
+            UserDataLoaded += UserData_UserDataLoaded;
+        }
+
+        private void UserData_UserDataLoaded(object sender, UserDataEventArgs e)
+        {
+            if (string.IsNullOrEmpty(btd6.GameDir) && !string.IsNullOrEmpty(BTD6Dir))
+                btd6.GameDir = BTD6Dir;
         }
 
         #endregion
@@ -149,29 +169,29 @@ namespace BTD6_Mod_Manager.Lib.Persistance
         /// <returns>The loaded userdata</returns>
         public static UserData LoadUserData()
         {
-            if (Instance == null)
-                Instance = new UserData();
+            /*if (Instance == null)
+                Instance = new UserData();*/
 
             var user = new UserData();
 
             if (!File.Exists(UserDataFilePath))
             {
                 user.OnUserDataLoaded(new UserDataEventArgs());
-                return Instance;
+                return user;
             }
 
             string json = File.ReadAllText(UserDataFilePath);
-            if (json == "null" || !Guard.IsJsonValid(json))
+            if (json == "null" || string.IsNullOrEmpty(json) || !Guard.IsJsonValid(json))
             {
                 Logger.Log("Userdata has invalid json, generating a new one.");
-                Instance = new UserData();
+                user = new UserData();
                 user.OnUserDataLoaded(new UserDataEventArgs());
-                return Instance;
+                return user;
             }
 
-            Instance = JsonConvert.DeserializeObject<UserData>(json);
+            user = JsonConvert.DeserializeObject<UserData>(json);
             user.OnUserDataLoaded(new UserDataEventArgs());
-            return Instance;
+            return user;
         }
 
         /// <summary>
